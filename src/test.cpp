@@ -22,6 +22,7 @@ typedef unsigned long int ULONG ;
 #include "queue.h"
 #include "search.h"
 #include "path.h"
+#include "execute_path.h"
 
 void DefineGraph(vector< vector<double> > & vertVec, vector< vector<double> > & edgeVec) 
 {
@@ -42,13 +43,13 @@ void DefineGraph(vector< vector<double> > & vertVec, vector< vector<double> > & 
 		vertVec.push_back(v) ;
 	}
 	cout << "complete.\n" ;
-	
+
 	//cout << "Size of vertices matrix: " << vertVec.size() << " x " << vertVec[0].size() << endl ;
 	/*for (ULONG i = 0; i < vertVec.size(); i++)
 		cout << "Vertex [" << i << "]: (" << vertVec[i][0] << "," << vertVec[i][1] << ")\n" ;*/
-	
+
 	ifstream edgesFile("sector_edges.txt") ;
-	
+
 	cout << "Reading edges from file..." ;
 	vector<double> e(4) ;
 	while (getline(edgesFile,line))
@@ -63,7 +64,7 @@ void DefineGraph(vector< vector<double> > & vertVec, vector< vector<double> > & 
 		edgeVec.push_back(e) ;
 	}
 	cout << "...complete.\n" ;
-	
+
 	//cout << "Size of edges matrix: " << edgeVec.size() << " x " << edgeVec[0].size() << endl ;
 	/*for (ULONG i = 0; i < edgeVec.size(); i++)
 	{
@@ -71,13 +72,13 @@ void DefineGraph(vector< vector<double> > & vertVec, vector< vector<double> > & 
 		<< ") to (" << vertVec[edgeVec[i][1]][0] << "," << vertVec[edgeVec[i][1]][1]
 		<< "), cost: " << edgeVec[i][2] << ", var: " << edgeVec[i][3] << endl ;
 	}*/
-		
+
 }
 
 void DefineWorld(vector< vector<bool> > & obstacles, vector< vector<int> > & membership)
 {
 	ifstream obstaclesFile("obstacles.txt") ;
-	
+
 	cout << "Reading obstacle map from file..." ;
 	vector<bool> obs(25) ;
 	string line ;
@@ -97,9 +98,9 @@ void DefineWorld(vector< vector<bool> > & obstacles, vector< vector<int> > & mem
 		obstacles.push_back(obs) ;
 	}
 	cout << "complete.\n" ;
-	
+
 	ifstream sectorsFile("membership.txt") ;
-	
+
 	cout << "Reading sector map from file..." ;
 	while (getline(sectorsFile,line))
 	{
@@ -118,7 +119,7 @@ void DefineWorld(vector< vector<bool> > & obstacles, vector< vector<int> > & mem
 int main()
 {
 	cout << "Test program...\n" ;
-	
+
 	/*// Testing on a 4 or 8 connected grid
 	double xMin = 0.0 ;
 	double xInc = 1.0 ;
@@ -130,33 +131,33 @@ int main()
 	vector<double> yGrid(lenY) ;
 	for (int i = 0; i < lenX; i++)
 		xGrid[i] = xMin + i*xInc ;
-	
+
 	for (int i = 0; i < lenY; i++)
 		yGrid[i] = yMin + i*yInc ;
-		
+
 	Graph * testGraph = new Graph(xGrid,yGrid,8) ;*/
-	
+
 	// Create vectors and edges in graph from text files
 	vector< vector<double> > vertVec ;
 	vector< vector<double> > edgeVec ;
 	DefineGraph(vertVec, edgeVec) ;
-	
+
 	// Create graph
 	Graph * testGraph = new Graph(vertVec, edgeVec) ;
 	Vertex * sourceSec = testGraph->GetVertices()[0] ; // top-left sector
 	Vertex * goalSec = testGraph->GetVertices()[testGraph->GetNumVertices()-1] ; // bottom-right sector
-	
+
 	//Create search object and perform path search from source to goal
 	cout << "Creating search object..." ;
 	Search * testSearch = new Search(testGraph, sourceSec, goalSec) ;
 	cout << "complete.\n" ;
-	
+
 	cout << "Performing path search from (" <<  sourceSec->GetX() << "," << sourceSec->GetY() << ") to (" ;
 	cout << goalSec->GetX() << "," << goalSec->GetY() << ")...\n" ;
-	pathOut pType = BEST ;
+	pathOut pType = ALL ;
 	vector<Node *> bestPaths = testSearch->PathSearch(pType) ;
 	cout << "Path search complete.\n" ;
-	
+
 	if (bestPaths.size() != 0)
 	{
 		for (ULONG i = 0; i < (ULONG)bestPaths.size(); i++)
@@ -165,12 +166,17 @@ int main()
 			bestPaths[i]->DisplayPath() ;
 		}
 	}
-	
+
+	executePath(bestPaths);
+
+
+
+
 	//Read in membership and obstacle text files
 	vector< vector<bool> > obstacles ;
 	vector< vector<int> > membership ;
 	DefineWorld(obstacles, membership) ;
-	
+
 	//Create path object to plan low level path
 	Vertex * sourcePath = new Vertex(2.0,3.0) ;
 	Vertex * goalPath = new Vertex(48.0,17.0) ;
@@ -180,7 +186,7 @@ int main()
 	Path * testPath = new Path(obstacles, membership, bestPaths[0], sourcePath, goalPath) ;
 	Node * lowLevelPath = testPath->ComputePath(8) ;
 	cout << "Low level path search complete.\n" ;
-	
+
 	delete testGraph ;
 	testGraph = 0 ;
 	delete testSearch ;
@@ -191,6 +197,6 @@ int main()
 	goalPath = 0 ;
 	delete testPath ;
 	testPath = 0 ;
-	
+
 	return 0 ;
 }
