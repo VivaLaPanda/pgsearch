@@ -3,6 +3,7 @@
 #include <math.h>
 #include <float.h>
 #include <random>
+#include <time.h>
 using namespace std ;
 
 const double pi = 3.14159265358979323846264338328 ;
@@ -54,7 +55,7 @@ double ComputeImprovementProbability(double c_A0, double c_B0, vector<double> mu
 			min_3sig = mu_B[i]-3*sig_B[i] ;
 	}
 	
-	int n = 100000 ;
+	int n = 10000 ;
 	vector<double> x = linspace(min_3sig,max_3sig,n) ;
 	double dx = x[1]-x[0] ;
 	double pImprove = 0.0 ;
@@ -83,7 +84,7 @@ double ComputeImprovementProbability(double c_A0, double c_B0, vector<double> mu
 int main()
 {
 	
-	default_random_engine generator ;
+	random_device generator ;
 	
 	uniform_real_distribution<double> mu_dist(0.0,10.0) ;
 	uniform_real_distribution<double> sig_dist(0.0,10.0) ;
@@ -111,15 +112,21 @@ int main()
 	double c_A0 = mu_dist(generator) ;
 	double c_B0 = mu_dist(generator) ;
 
+	clock_t t_fun ;
+	t_fun = clock() ;
 	double pImprove = ComputeImprovementProbability(c_A0,c_B0,mu_A,sig_A,mu_B,sig_B) ;
+	t_fun = clock() - t_fun ;
 
 	cout << "Probability of improvement: " << pImprove << endl ;
+	cout << "Tics elapsed: " << t_fun << ", " << ((float)t_fun)/CLOCKS_PER_SEC << "s" << endl ;
 
 	n = 100000 ;
 	vector<double> A_cost(n,c_A0) ;
 	vector<double> B_cost(n,c_B0) ;
 	
 	double pBoverA = 0.0 ;
+	clock_t t_MC ;
+	t_MC = clock() ;
 	for (int k = 0; k < n; k++)
 	{
 		double best_A = DBL_MAX ;
@@ -145,9 +152,11 @@ int main()
 		if (B_cost[k]<=A_cost[k])
 			pBoverA++ ;
 	}
+	t_MC = clock() - t_MC ;
 
 	double pBA = pBoverA/n ;
 	cout << "Monte Carlo probability: " << pBA << endl ;
+	cout << "Tics elapsed: " << t_MC << ", " << ((float)t_MC)/CLOCKS_PER_SEC << "s" << endl ;
 
 	return 0 ;
 }
