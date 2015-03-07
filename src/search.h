@@ -17,10 +17,6 @@ class Search
 		void SetGoal(Vertex * v2) {itsGoal = v2 ;}
 		
 		vector<Node *> PathSearch(pathOut pType) ;
-		void AStarSearch(heuristic) ;
-		void DijkstraSearch() ;
-		void BreadthFirstSearch() ;
-		void DepthFirstSearch() ;
 	private:
 		Graph * itsGraph ;
 		Queue * itsQueue ;
