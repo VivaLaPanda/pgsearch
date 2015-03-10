@@ -1,23 +1,38 @@
-#include "vector"
+#ifndef EXECUTE_PATH
+#define EXECUTE_PATH
 
+#include <vector>
+//#include "node.h"
 void executePath(vector<Node*> bestPaths)
 {
+	vector< Node *> reversedPaths;
 	cout << endl << "EXECUTING PATH" << endl;
 	for(int i = 0; i < bestPaths.size(); i++){
-		bestPaths[i]->ReverseList(bestPaths[i]);
+		reversedPaths[i] = bestPaths[i]->ReverseList(bestPaths[i]);
 		cout << endl << "Path" << i << endl;
-		bestPaths[i]->DisplayPath();
+		reversedPaths[i]->DisplayPath();
 		cout << endl;
 		//bestPaths[i]->GetVertex()->SetCTG(10);
 	}
 
-	for(int i = 0; i < bestPaths.size(); i++){
+	for(int i = 0; i < reversedPaths.size(); i++){
 		cout << endl << "Path" << i << endl;
-		bestPaths[i]->DisplayPath();  
+		reversedPaths[i]->DisplayPath();  
 		cout << endl;
+		// find the mean cost of the first & last node
+		// 
+		reversedPaths[i]->GetMeanCost();
+		Node * itsParent;
+		Node * oldParent;
+		itsParent = reversedPaths[i];
+		while(itsParent != oldParent)
+			oldParent = itsParent;
+			itsParent = itsParent->GetParent();
+		cout << "mean cost = " << reversedPaths[i]->GetMeanCost() - itsParent->GetMeanCost() << endl;
+		
 	}
 
-	cout << endl << bestPaths[2]->GetVertex()->GetCTG() << endl;
+	cout << endl << reversedPaths[2]->GetVertex()->GetCTG() << endl;
 
 	/* Get list of paths
 	 * Call *probability of best path*
@@ -30,4 +45,4 @@ void executePath(vector<Node*> bestPaths)
 }
 
 
-
+#endif
