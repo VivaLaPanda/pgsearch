@@ -195,8 +195,8 @@ int main()
 	sourcePath = 0 ;
 	delete goalPath ;
 	goalPath = 0 ;
-	delete testPath ;
-	testPath = 0 ;
+//	delete testPath ;
+//	testPath = 0 ;
 
 	return 0 ;
 }
