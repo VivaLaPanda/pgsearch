@@ -1,9 +1,9 @@
 #include <iostream>
-#include <algorithm>
-#include <math.h>
+//#include <algorithm>
+//#include <math.h>
 #include <float.h>
 #include <random>
-#include <time.h>
+//#include <time.h>
 using namespace std ;
 
 const double pi = 3.14159265358979323846264338328 ;
@@ -112,15 +112,22 @@ int main()
 	double c_A0 = mu_dist(generator) ;
 	double c_B0 = mu_dist(generator) ;
 
-	clock_t t_fun ;
-	t_fun = clock() ;
-	double pImprove = ComputeImprovementProbability(c_A0,c_B0,mu_A,sig_A,mu_B,sig_B) ;
-	t_fun = clock() - t_fun ;
+	clock_t t_fun1 = clock() ;
+	double pImproveA_B = ComputeImprovementProbability(c_B0,c_A0,mu_B,sig_B,mu_A,sig_A) ;
+	t_fun1 = clock() - t_fun1 ;
 
-	cout << "Probability of improvement: " << pImprove << endl ;
-	cout << "Tics elapsed: " << t_fun << ", " << ((float)t_fun)/CLOCKS_PER_SEC << "s" << endl ;
+	cout << "Probability of improvement: " << pImproveA_B << endl ;
+	cout << "Tics elapsed: " << t_fun1 << ", " << ((float)t_fun1)/CLOCKS_PER_SEC << "s" << endl ;
 
-	n = 100000 ;
+	clock_t t_fun0 ;
+	t_fun0 = clock() ;
+	double pImproveB_A = ComputeImprovementProbability(c_A0,c_B0,mu_A,sig_A,mu_B,sig_B) ;
+	t_fun0 = clock() - t_fun0 ;
+
+	cout << "Probability of improvement: " << pImproveB_A << endl ;
+	cout << "Tics elapsed: " << t_fun0 << ", " << ((float)t_fun0)/CLOCKS_PER_SEC << "s" << endl ;
+
+	n = 10000 ;
 	vector<double> A_cost(n,c_A0) ;
 	vector<double> B_cost(n,c_B0) ;
 	

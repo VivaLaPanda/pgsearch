@@ -25,6 +25,7 @@ class Node
 		void SetHeuristic(double h) {itsHeuristic = h ;}
 		
 		void DisplayPath() ;
+		Node * ReverseList(Node * itsChild) ;
 	private:
 		Vertex * itsVertex ;
 		Node * itsParent ;
@@ -88,4 +89,23 @@ void Node::DisplayPath()
 	
 	if (itsParent)
 		itsParent->DisplayPath() ;
+}
+
+Node * Node::ReverseList(Node * itsChild)
+{
+	Node * itsParentR = new Node(GetVertex()) ;
+	itsParentR->SetMeanCost(GetMeanCost()) ;
+	itsParentR->SetVarCost(GetVarCost()) ;
+	itsParentR->SetParent(itsChild) ;
+	
+	Node * itsReverse ;
+	
+	if (GetParent())
+	{
+		itsReverse = GetParent()->ReverseList(itsParentR) ;
+		return itsReverse ;
+	}
+	else
+		return itsParentR ;
+	
 }
