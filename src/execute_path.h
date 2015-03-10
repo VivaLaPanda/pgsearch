@@ -2,28 +2,21 @@
 
 void executePath(vector<Node*> bestPaths)
 {
-	//cout<<"PARENT" << bestPaths[0]->GetParent() << endl;
-	//vector< Vertex *> Vertices;
-	//for(int i =0; i < bestPaths.size(); i++){
-	//	cout << "PARENT"<< i << bestPaths[i]->GetParent()->GetVertex()<< endl;
-	//	Vertices.push_back(bestPaths[i]->GetParent()->GetVertex());
-	//	cout << "VERTICES " <<Vertices[i]<<endl;
-	//	Node* p;
-	//	Node* cur;
-	//	cur = bestPaths[i];
-	//	while(cur){
-	//		p = cur->GetParent();
-	//		cout << p->GetVertex() << endl;
-	//		cur = p;
-	//	}
-
-	//}
-	//cout << endl << bestPaths[1] << endl;
+	cout << endl << "EXECUTING PATH" << endl;
+	for(int i = 0; i < bestPaths.size(); i++){
+		bestPaths[i]->ReverseList(bestPaths[i]);
+		cout << endl << "Path" << i << endl;
+		bestPaths[i]->DisplayPath();
+		cout << endl;
+		//bestPaths[i]->GetVertex()->SetCTG(10);
+	}
 
 	for(int i = 0; i < bestPaths.size(); i++){
-		cout << endl << bestPaths[i] << endl;
-		bestPaths[i]->GetVertex()->SetCTG(10);
+		cout << endl << "Path" << i << endl;
+		bestPaths[i]->DisplayPath();  
+		cout << endl;
 	}
+
 	cout << endl << bestPaths[2]->GetVertex()->GetCTG() << endl;
 
 	/* Get list of paths
