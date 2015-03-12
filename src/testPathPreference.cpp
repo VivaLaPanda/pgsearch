@@ -25,7 +25,7 @@ const double pi = 3.14159265358979323846264338328 ;
 
 void DefineGraph(vector< vector<double> > & vertVec, vector< vector<double> > & edgeVec) 
 {
-	ifstream verticesFile("sector_vertices.txt") ;
+	ifstream verticesFile("sector_vertices1.txt") ;
 
 	cout << "Reading vertices from file..." ;
 	vector<double> v(2) ;

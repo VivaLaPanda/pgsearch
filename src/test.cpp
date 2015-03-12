@@ -26,7 +26,7 @@ typedef unsigned long int ULONG ;
 
 void DefineGraph(vector< vector<double> > & vertVec, vector< vector<double> > & edgeVec) 
 {
-	ifstream verticesFile("sector_vertices.txt") ;
+	ifstream verticesFile("sector_vertices1.txt") ;
 
 	cout << "Reading vertices from file..." ;
 	vector<double> v(2) ;
@@ -48,7 +48,7 @@ void DefineGraph(vector< vector<double> > & vertVec, vector< vector<double> > & 
 	/*for (ULONG i = 0; i < vertVec.size(); i++)
 		cout << "Vertex [" << i << "]: (" << vertVec[i][0] << "," << vertVec[i][1] << ")\n" ;*/
 
-	ifstream edgesFile("sector_edges.txt") ;
+	ifstream edgesFile("sector_edges1.txt") ;
 
 	cout << "Reading edges from file..." ;
 	vector<double> e(4) ;
