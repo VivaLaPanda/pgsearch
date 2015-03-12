@@ -4,6 +4,34 @@
 #include <vector>
 //#include "node.h"
 using namespace std;
+
+void executePath(vector< Node*> GSPaths){
+	cout << endl << "EXECUTING PATH" << endl;
+	Vertex* goal;
+	Node* cur_loc;
+	vector < Node*> SGPaths;
+	goal = GSPaths[0]->GetVertex();
+
+	for(int i = 0; i < GSPaths.size(); i++){
+		SGPaths.push_back(GSPaths[i]->ReverseList(0));
+		cout << endl << "Path" << i << endl;
+		SGPaths[i]->DisplayPath();
+		cout << endl;
+	}
+
+	cout << endl << "Before While" << endl;
+	cur_loc = SGPaths[0];
+	while(cur_loc->GetVertex() != goal){
+		cout << endl << "While Loop" << endl;
+		cur_loc = cur_loc->GetParent();
+		cout << " Current Location: " << cur_loc->GetVertex() << endl;
+		cout << goal << endl;
+	}
+
+
+}
+
+/*
 void executePath(vector<Node*> bestPaths)
 {
 	vector< Node *> reversedPaths(bestPaths.size());
@@ -57,10 +85,12 @@ void executePath(vector<Node*> bestPaths)
 		 i* Repeat
 		 */
 
-		/*set attributes of each vertice with score from them to the goal
-		*/
+		/*
+		 * set attributes of each vertice with score from them to the goal
+		
 	}
 }
 
+*/
 
 #endif
