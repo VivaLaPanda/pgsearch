@@ -11,6 +11,7 @@ class Vertex
 		void SetY(double y) {itsY = y ;}
 		double GetCTG()const{return itsCTG ;}
 		void SetCTG(double cost_to_goal) {itsCTG = cost_to_goal ;}
+
 	private:
 		double itsX ;
 		double itsY ;

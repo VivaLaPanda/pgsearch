@@ -7,10 +7,10 @@ using namespace std;
 
 void executePath(vector< Node*> GSPaths){
 	cout << endl << "EXECUTING PATH" << endl;
-	Vertex* goal;
+	Vertex* goal_loc;
+	Node* goal;
 	Node* cur_loc;
 	vector < Node*> SGPaths;
-	goal = GSPaths[0]->GetVertex();
 
 	for(int i = 0; i < GSPaths.size(); i++){
 		SGPaths.push_back(GSPaths[i]->ReverseList(0));
@@ -19,15 +19,29 @@ void executePath(vector< Node*> GSPaths){
 		cout << endl;
 	}
 
-	cout << endl << "Before While" << endl;
+	cout << "Iterating Through Paths" << endl;
 	cur_loc = SGPaths[0];
-	while(cur_loc->GetVertex() != goal){
-		cout << endl << "While Loop" << endl;
-		cur_loc = cur_loc->GetParent();
-		cout << " Current Location: " << cur_loc->GetVertex() << endl;
-		cout << goal << endl;
-	}
+	for(int i = 0; i < SGPaths.size(); i++){
 
+		cout << "Path" <<  i  << endl;
+		goal = GSPaths[i];
+		goal_loc = goal->GetVertex();
+		cur_loc = SGPaths[i];
+		double gu = goal->GetMeanCost();
+		double gv = goal->GetVarCost();
+
+		cout << "Before While" << endl;
+		while(cur_loc->GetVertex() != goal_loc){
+			cout << "Step" << endl;
+			cur_loc = cur_loc->GetParent();
+			cout << "Current Location: " << cur_loc->GetVertex()->GetX() << ", " <<  cur_loc->GetVertex()->GetY() << endl;
+			//Track the score
+			cout << gu - cur_loc->GetMeanCost() << endl;
+			cout << gv - cur_loc->GetVarCost() << endl << endl;
+			
+
+		}
+	}
 
 }
 
