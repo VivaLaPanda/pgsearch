@@ -102,6 +102,7 @@ bool ComputeImprovementProbability(Vertex* A, Vertex* B) //  double c_A0, double
 
 
 void executePath(vector< Node*> GSPaths){
+	//Initialize Values
 	cout << endl << "EXECUTING PATH" << endl;
 	Vertex* goal_loc;
 	Vertex* goal;
@@ -109,7 +110,9 @@ void executePath(vector< Node*> GSPaths){
 	vector < Node*> SGPaths, NewNodes;
 	vector <Vertex*> vertices;
 	Vertex* TmpVertex;
-
+	
+	//Reverse Paths because they are first given from goal to start
+	//Outputs the reversed paths using the display paths function
 	for(int i = 0; i < GSPaths.size(); i++){
 		SGPaths.push_back(GSPaths[i]->ReverseList(0));
 		cout << endl << "Path" << i << endl;
@@ -117,36 +120,45 @@ void executePath(vector< Node*> GSPaths){
 		cout << endl;
 	}
 
+	//Begin Iterating through paths, set start & goal and initialize the NewNodes vector to the path vector containing all possible start nodes.
 	cout << "Iterating Through Paths" << endl;
 	cur_loc = SGPaths[0]->GetVertex();
-
 	goal_loc = GSPaths[0]->GetVertex();
 	NewNodes = SGPaths;
+
+	//Begin execution
 	while(cur_loc != goal){
 		cout << "step" << endl;
+		//For each node available next, parse into the vertices vector and assign that vertice an actual cost to it
 		for(int i = 0; i < NewNodes.size(); i++){
-			NewNodes[i]->GetVertex()->SetNodes(NewNodes[i]);
+			cout << "NODE:" << i << NewNodes[i] << endl;
+			//The bug here is that we are looking at the 0,0 nodes that don't correspond to the next nodes aka the parents....
 			if(find(vertices.begin(), vertices.end(), NewNodes[i]->GetVertex()) == vertices.end()){
-			    vertices.push_back(NewNodes[i]->GetVertex());
-			    NewNodes[i]->GetVertex()->SetActualCost(generateGaussianNoise(NewNodes[i]->GetMeanCost(), NewNodes[i]->GetVarCost())); // I think this is right now? --- this line is wrong and needs to generate the actual path cost for each vertice based on the chosen path to get there.
-			    cout << "found new vertice" << endl;
+				NewNodes[i]->GetVertex()->SetNodes(NewNodes[i]);
+				vertices.push_back(NewNodes[i]->GetVertex());
+				NewNodes[i]->GetVertex()->SetActualCost(generateGaussianNoise(NewNodes[i]->GetMeanCost(), NewNodes[i]->GetVarCost())); // I think this is right now? --- this line is wrong and needs to generate the actual path cost for each vertice based on the chosen path to get there.
+				cout << "found new vertex" << endl;
 			}
 		}
+
+		//Sort the vertices by the improvement probability function
+		//Set the cur location to the first vertice in the sorted vector
+		//Get the nodes available at the new location
 		sort(vertices.begin(), vertices.end(), ComputeImprovementProbability);
 		cur_loc = vertices[0];
 		NewNodes = cur_loc->GetNodes();
-		cout << cur_loc << endl;
-		cout << "NewNodes Vertices" << NewNodes[0]->GetVertex() << endl; //this is for current debugging
-		cout << "NewNodes Vertices" << NewNodes[1]->GetVertex() << endl;
+		//Debug prints
+		cout << "Current Location: " << cur_loc->GetX() << ", " <<  cur_loc->GetY() << endl;
+		cout << "NewNodes Vertices: " << NewNodes[0]->GetVertex() << endl; //this is for current debugging
+		cout << "NewNodes Vertices: " << NewNodes[1]->GetVertex() << endl;
 		 
 	}
-
-	cout << generateGaussianNoise(5, 0.5) << endl;
 }
 
 
 
 
+//Old stuff saving for reference... PLEASE IGNORE
 /*
 	for(int i = 0; i < SGPaths.size(); i++){
 
