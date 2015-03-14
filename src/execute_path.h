@@ -131,13 +131,14 @@ void executePath(vector< Node*> GSPaths){
 		cout << "step" << endl;
 		//For each node available next, parse into the vertices vector and assign that vertice an actual cost to it
 		for(int i = 0; i < NewNodes.size(); i++){
-			cout << "NODE:" << i << NewNodes[i] << endl;
+			cout << "NODE:" << i << NewNodes[i]->GetParent() << endl;
+			//---------------BUG------------------
 			//The bug here is that we are looking at the 0,0 nodes that don't correspond to the next nodes aka the parents....
 			if(find(vertices.begin(), vertices.end(), NewNodes[i]->GetVertex()) == vertices.end()){
-				NewNodes[i]->GetVertex()->SetNodes(NewNodes[i]);
-				vertices.push_back(NewNodes[i]->GetVertex());
-				NewNodes[i]->GetVertex()->SetActualCost(generateGaussianNoise(NewNodes[i]->GetMeanCost(), NewNodes[i]->GetVarCost())); // I think this is right now? --- this line is wrong and needs to generate the actual path cost for each vertice based on the chosen path to get there.
 				cout << "found new vertex" << endl;
+				NewNodes[i]->GetParent()->GetVertex()->SetNodes(NewNodes[i]->GetParent());
+				vertices.push_back(NewNodes[i]->GetParent()->GetVertex());
+				NewNodes[i]->GetParent()->GetVertex()->SetActualCost(generateGaussianNoise(NewNodes[i]->GetParent()->GetMeanCost(), NewNodes[i]->GetParent()->GetVarCost())); // I think this is right now? --- this line is wrong and needs to generate the actual path cost for each vertice based on the chosen path to get there.
 			}
 		}
 
