@@ -144,13 +144,14 @@ void executePath(vector< Node*> GSPaths){
 		//Sort the vertices by the improvement probability function
 		//Set the cur location to the first vertice in the sorted vector
 		//Get the nodes available at the new location
+		cout << "Nodes List Size: " << NewNodes.size() << endl;
 		sort(vertices.begin(), vertices.end(), ComputeImprovementProbability);
 		cur_loc = vertices[0];
 		NewNodes = cur_loc->GetNodes();
 		//Debug prints
 		cout << "Current Location: " << cur_loc->GetX() << ", " <<  cur_loc->GetY() << endl;
+		cout << "Nodes List Size: " << NewNodes.size() << endl;
 		cout << "NewNodes Vertices: " << NewNodes[0]->GetVertex() << endl; //this is for current debugging
-		cout << "NewNodes Vertices: " << NewNodes[1]->GetVertex() << endl;
 		 
 	}
 }
