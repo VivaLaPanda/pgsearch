@@ -2,15 +2,113 @@
 #define EXECUTE_PATH
 
 #include <vector>
+//#include <cmath>
+#include <math.h>
+#include <limits.h>
+//#include <set>
 //#include "node.h"
 using namespace std;
+const double pi = 3.14159265358979323846264338328 ;
+
+double generateGaussianNoise(double mu, double sigma)
+{
+		const double epsilon = std::numeric_limits<double>::min();
+		const double two_pi = 2.0*3.14159265358979323846;
+		static double z0, z1;
+		static bool generate;
+		generate = !generate;
+		if (!generate)
+		   return z1 * sigma + mu;
+
+		double u1, u2;
+		do
+		{
+			u1 = rand() * (1.0 / RAND_MAX);
+			u2 = rand() * (1.0 / RAND_MAX);
+		}
+		while ( u1 <= epsilon );
+			 
+			z0 = sqrt(-2.0 * log(u1)) * cos(two_pi * u2);
+			z1 = sqrt(-2.0 * log(u1)) * sin(two_pi * u2);
+			return z0 * sigma + mu;
+}
+
+vector<double> linspace(double a, double b, int n)
+{
+	vector<double> array ;
+	double step = (b-a)/(n-1) ;
+	while (a<=b)
+	{
+		array.push_back(a) ;
+		a += step ;
+	}
+	return array ;
+}
+bool ComputeImprovementProbability(Vertex* A, Vertex* B) //  double c_A0, double c_B0, vector<double> mu_A, vector<double> sig_A, vector<double> mu_B, vector<double> sig_B)
+{ // The longer vectors should be set to B
+	//rewrite this to work as a  comparitor
+	double c_A0, c_B0;
+	bool isBetter;
+	vector<Node*> ANodes, BNodes;
+	c_A0 = A->GetActualCost();
+	c_B0 = B->GetActualCost();
+	ANodes = A->GetNodes();
+	BNodes = B->GetNodes();
+	double max_3sig = ANodes[0]->GetMeanCost() + 3*ANodes[0]->GetVarCost() ;
+	double min_3sig = ANodes[0]->GetMeanCost() - 3*ANodes[0]->GetVarCost() ;
+	for (int i = 0; i < ANodes.size(); i++)
+	{
+		if (max_3sig < ANodes[i]->GetMeanCost()+3*ANodes[i]->GetVarCost())
+			max_3sig = ANodes[i]->GetMeanCost()+3*ANodes[i]->GetVarCost() ;
+		if (min_3sig > ANodes[i]->GetMeanCost()-3*ANodes[i]->GetVarCost())
+			min_3sig = ANodes[i]->GetMeanCost()-3*ANodes[i]->GetVarCost() ;
+	}
+	for (int i = 0; i < BNodes.size(); i++)
+	{
+		if (max_3sig < BNodes[i]->GetMeanCost()+3*BNodes[i]->GetVarCost())
+			max_3sig = BNodes[i]->GetMeanCost()+3*BNodes[i]->GetVarCost() ;
+		if (min_3sig > BNodes[i]->GetMeanCost()-3*BNodes[i]->GetVarCost())
+			min_3sig = BNodes[i]->GetMeanCost()-3*BNodes[i]->GetVarCost() ;
+	}
+	
+	int n = 10000 ;
+	vector<double> x = linspace(min_3sig,max_3sig,n) ;
+	double dx = x[1]-x[0] ;
+	double pImprove = 0.0 ;
+	for (int k = 0; k < x.size(); k++)
+	{
+		double p_cAi = 0.0 ;
+		for (int i = 0; i < ANodes.size(); i++)
+		{
+			double p_cA1 = (1/(ANodes[i]->GetVarCost()*sqrt(2*pi)))*exp(-(pow(x[k]-ANodes[i]->GetMeanCost(),2))/(2*pow(ANodes[i]->GetVarCost(),2))) ;
+			double p_cA2 = 1.0 ;
+			for (int j = 0; j < ANodes.size(); j++)
+			{
+				if (j != i)
+					p_cA2 *= 0.5*erfc((x[k]-ANodes[j]->GetMeanCost())/(ANodes[j]->GetVarCost()*sqrt(2))) ;
+			}
+			p_cAi += p_cA1*p_cA2 ;
+		}
+		double p_cBi = 1.0 ;
+		for (int i = 0; i < BNodes.size(); i++)
+			p_cBi *= 0.5*erfc((x[k]-(c_B0-c_A0)-BNodes[i]->GetMeanCost())/(BNodes[i]->GetVarCost()*sqrt(2))) ;
+		pImprove += (p_cAi)*(1-p_cBi)*dx ;
+	}
+	if(pImprove > .5){
+		isBetter = true;
+	}
+	return isBetter;
+}
+
 
 void executePath(vector< Node*> GSPaths){
 	cout << endl << "EXECUTING PATH" << endl;
 	Vertex* goal_loc;
-	Node* goal;
-	Node* cur_loc;
-	vector < Node*> SGPaths;
+	Vertex* goal;
+	Vertex* cur_loc;
+	vector < Node*> SGPaths, NewNodes;
+	vector <Vertex*> vertices;
+	Vertex* TmpVertex;
 
 	for(int i = 0; i < GSPaths.size(); i++){
 		SGPaths.push_back(GSPaths[i]->ReverseList(0));
@@ -20,8 +118,38 @@ void executePath(vector< Node*> GSPaths){
 	}
 
 	cout << "Iterating Through Paths" << endl;
-	cur_loc = SGPaths[0];
+	cur_loc = SGPaths[0]->GetVertex();
+
+	goal_loc = GSPaths[0]->GetVertex();
+	NewNodes = SGPaths;
+	while(cur_loc != goal){
+		cout << "step" << endl;
+		for(int i = 0; i < NewNodes.size(); i++){
+			NewNodes[i]->GetVertex()->SetNodes(NewNodes[i]);
+			if(find(vertices.begin(), vertices.end(), NewNodes[i]->GetVertex()) == vertices.end()){
+			    vertices.push_back(NewNodes[i]->GetVertex());
+			    NewNodes[i]->GetVertex()->SetActualCost(generateGaussianNoise(NewNodes[i]->GetMeanCost(), NewNodes[i]->GetVarCost())); // I think this is right now? --- this line is wrong and needs to generate the actual path cost for each vertice based on the chosen path to get there.
+			    cout << "found new vertice" << endl;
+			}
+		}
+		sort(vertices.begin(), vertices.end(), ComputeImprovementProbability);
+		cur_loc = vertices[0];
+		NewNodes = cur_loc->GetNodes();
+		cout << cur_loc << endl;
+		cout << "NewNodes Vertices" << NewNodes[0]->GetVertex() << endl; //this is for current debugging
+		cout << "NewNodes Vertices" << NewNodes[1]->GetVertex() << endl;
+		 
+	}
+
+	cout << generateGaussianNoise(5, 0.5) << endl;
+}
+
+
+
+
+/*
 	for(int i = 0; i < SGPaths.size(); i++){
+
 
 		cout << "Path" <<  i  << endl;
 		goal = GSPaths[i];
@@ -29,6 +157,10 @@ void executePath(vector< Node*> GSPaths){
 		cur_loc = SGPaths[i];
 		double gu = goal->GetMeanCost();
 		double gv = goal->GetVarCost();
+
+		//NextVertices.insert(SGPaths[i]->GetParent());
+		//SGPaths = NextVertices[0]->GetNodes();
+
 
 		cout << "Before While" << endl;
 		while(cur_loc->GetVertex() != goal_loc){
@@ -38,12 +170,12 @@ void executePath(vector< Node*> GSPaths){
 			//Track the score
 			cout << gu - cur_loc->GetMeanCost() << endl;
 			cout << gv - cur_loc->GetVarCost() << endl << endl;
-			
-
 		}
-	}
 
-}
+
+	}
+*/
+
 
 /*
 void executePath(vector<Node*> bestPaths)

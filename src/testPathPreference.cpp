@@ -115,7 +115,7 @@ vector<double> linspace(double a, double b, int n)
 }
 
 double ComputeImprovementProbability(double c_A0, double c_B0, vector<double> mu_A, vector<double> sig_A, vector<double> mu_B, vector<double> sig_B)
-{
+{ // The longer vectors should be set to B
 	double max_3sig = mu_A[0] + 3*sig_A[0] ;
 	double min_3sig = mu_A[0] - 3*sig_A[0] ;
 	for (int i = 0; i < mu_A.size(); i++)
