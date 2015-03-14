@@ -104,7 +104,6 @@ bool ComputeImprovementProbability(Vertex* A, Vertex* B) //  double c_A0, double
 void executePath(vector< Node*> GSPaths){
 	//Initialize Values
 	cout << endl << "EXECUTING PATH" << endl;
-	Vertex* goal_loc;
 	Vertex* goal;
 	Vertex* cur_loc;
 	vector < Node*> SGPaths, NewNodes;
@@ -123,12 +122,13 @@ void executePath(vector< Node*> GSPaths){
 	//Begin Iterating through paths, set start & goal and initialize the NewNodes vector to the path vector containing all possible start nodes.
 	cout << "Iterating Through Paths" << endl;
 	cur_loc = SGPaths[0]->GetVertex();
-	goal_loc = GSPaths[0]->GetVertex();
+	goal = GSPaths[0]->GetVertex();
 	NewNodes = SGPaths;
 
 	//Begin execution
 	while(cur_loc != goal){
 		cout << "step" << endl;
+
 		//For each node available next, parse into the vertices vector and assign that vertice an actual cost to it
 		for(int i = 0; i < NewNodes.size(); i++){
 			cout << "NODE:" << i << NewNodes[i]->GetParent() << endl;
@@ -137,8 +137,7 @@ void executePath(vector< Node*> GSPaths){
 				cout << "found new vertex" << endl;
 				NewNodes[i]->GetParent()->GetVertex()->SetNodes(NewNodes[i]->GetParent());
 				vertices.push_back(NewNodes[i]->GetParent()->GetVertex());
-				NewNodes[i]->GetParent()->GetVertex()->SetActualCost(generateGaussianNoise(NewNodes[i]->GetParent()->GetMeanCost(), NewNodes[i]->GetParent()->GetVarCost())); // I think this is right now? --- this line is wrong and needs to generate the actual path cost for each vertice based on the chosen path to get there.
-			}
+				NewNodes[i]->GetParent()->GetVertex()->SetActualCost(generateGaussianNoise(NewNodes[i]->GetParent()->GetMeanCost(), NewNodes[i]->GetParent()->GetVarCost()));			}
 		}
 
 		//Sort the vertices by the improvement probability function
@@ -148,11 +147,8 @@ void executePath(vector< Node*> GSPaths){
 		sort(vertices.begin(), vertices.end(), ComputeImprovementProbability);
 		cur_loc = vertices[0];
 		NewNodes = cur_loc->GetNodes();
-		//Debug prints
+		//Status Prints
 		cout << "Current Location: " << cur_loc->GetX() << ", " <<  cur_loc->GetY() << endl;
-		cout << "Nodes List Size: " << NewNodes.size() << endl;
-		cout << "NewNodes Vertices: " << NewNodes[0]->GetVertex() << endl; //this is for current debugging
-		 
 	}
 }
 
