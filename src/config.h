@@ -5,4 +5,4 @@ enum heuristic {ZERO, MANHATTAN, EUCLIDEAN} ;
 enum pathOut {BEST,ALL} ;
 
 searchType SEARCH_TYPE = ASTAR ;
-heuristic HEURISTIC = MANHATTAN ;
+heuristic HEURISTIC = ZERO ;

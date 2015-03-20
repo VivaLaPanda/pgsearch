@@ -134,7 +134,9 @@ void executePath(vector< Node*> GSPaths){
 
 		//For each node available next, parse into the vertices vector and assign that vertice an actual cost to it
 		for(int i = 0; i < NewNodes.size(); i++){
-			cout << "NODE:" << i << NewNodes[i]->GetParent() << endl;
+			cout << "NODE:" << i << " (" << NewNodes[i]->GetParent()->GetVertex()->GetX() << "," 
+				<< NewNodes[i]->GetParent()->GetVertex()->GetY() << "), cost: " 
+				<< NewNodes[i]->GetMeanCost() << ", var: " << NewNodes[i]->GetVarCost() << endl;
 			// Assign the parent nodes to the next vertex
 			if(find(vertices.begin(), vertices.end(), NewNodes[i]->GetParent()->GetVertex()) == vertices.end()){
 				cout << "found new vertex" << endl;

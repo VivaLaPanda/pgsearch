@@ -47,10 +47,6 @@ void DefineGraph(vector< vector<double> > & vertVec, vector< vector<double> > & 
 	}
 	cout << "complete.\n" ;
 
-	//cout << "Size of vertices matrix: " << vertVec.size() << " x " << vertVec[0].size() << endl ;
-	/*for (ULONG i = 0; i < vertVec.size(); i++)
-		cout << "Vertex [" << i << "]: (" << vertVec[i][0] << "," << vertVec[i][1] << ")\n" ;*/
-
 	ifstream edgesFile("sector_edges1.txt") ;
 
 	cout << "Reading edges from file..." ;
@@ -67,15 +63,6 @@ void DefineGraph(vector< vector<double> > & vertVec, vector< vector<double> > & 
 		edgeVec.push_back(e) ;
 	}
 	cout << "...complete.\n" ;
-
-	//cout << "Size of edges matrix: " << edgeVec.size() << " x " << edgeVec[0].size() << endl ;
-	/*for (ULONG i = 0; i < edgeVec.size(); i++)
-	{
-		cout << "Edge [" << i << "]: (" << vertVec[edgeVec[i][0]][0] << "," << vertVec[edgeVec[i][0]][1] 
-		<< ") to (" << vertVec[edgeVec[i][1]][0] << "," << vertVec[edgeVec[i][1]][1]
-		<< "), cost: " << edgeVec[i][2] << ", var: " << edgeVec[i][3] << endl ;
-	}*/
-
 }
 
 void DefineWorld(vector< vector<bool> > & obstacles, vector< vector<int> > & membership)
@@ -119,36 +106,31 @@ void DefineWorld(vector< vector<bool> > & obstacles, vector< vector<int> > & mem
 	cout << "complete.\n" ;
 }
 
-vector< vector< double > > makeVertices(double x, double y){
-	vector< vector< double > > vertices;
-	vector< double > tmp;
+vector< vector< double > > makeVertices(double x, double y, int numVerts){
+	vector< vector< double > > vertices(numVerts, vector<double>(2));
+
 	srand (time(NULL));
-	int numVerts;
 	double vertx, verty;
 	int xx = x;
 	int yy = y;
 	double testx, testy;
-	numVerts = 500; // number of vertices to generate wihin specified x, y area
-	tmp.push_back(0);
-	tmp.push_back(0);
-
-	vertices.push_back(tmp);
+	
 	for(int i = 0; i < numVerts; i++){
 		vertx = rand() % xx;
 		verty = rand() % yy;
-		testx = vertx;
-		testy = verty;
-		vector< double > row;
-		row.push_back(testx);
-		row.push_back(testy);
-		vertices.push_back(row);
+		vertices[i][0] = vertx ;
+		vertices[i][1] = verty ;
 	}
+	
+	// Write vertices to txt file
+	ofstream vertsFile ;
+	vertsFile.open("config_files/vertices.txt") ;
+	for (ULONG i = 0; i < vertices.size(); i++)
+	{
+		vertsFile << vertices[i][0] << "," << vertices[i][1] << "\n" ;
+	}
+	vertsFile.close() ;
 
-//	for(int i = 0; i < vertices.size(); i++){
-//		for(int j = 0; vertices[0].size(); j++){
-//			cout << vertices[i][j] << endl;
-//		}
-//	}
 	return vertices;
 }
 
@@ -181,12 +163,14 @@ int main()
 	// Create graph
 	// Need to  make a vector of vertices or adapt the graph.h file to generate them automatically given a x,y area.
 	vector< vector< double > > vertVec2;
-	double x,y, radius;
+	double x, y, radius;
+	int numVerts;
 	x = 50;
 	y = 50;
+	numVerts = 20 ;// number of vertices to generate wihin specified x, y area
 	cout << "Generating Random Vertices in " << x << " by " << y << endl;
-	vertVec2 = makeVertices(x,y);
-	radius= 10.0;// need to rewrite into the formula that determines radius automatically based on max vertex distance
+	vertVec2 = makeVertices(x,y,numVerts);
+	radius = sqrt((6.0/pi)*x*y*(log((double)numVerts)/(double)numVerts)) ;
 	cout << "Connecting with radius " << radius << endl;
 	//Graph * testGraph = new Graph(vertVec, edgeVec) ;
 	Graph * testGraph = new Graph(vertVec2, radius);
@@ -218,7 +202,7 @@ int main()
 
 
 
-	//Read in membership and obstacle text files
+	/*//Read in membership and obstacle text files
 	vector< vector<bool> > obstacles ;
 	vector< vector<int> > membership ;
 	DefineWorld(obstacles, membership) ;
@@ -231,15 +215,15 @@ int main()
 	cout << goalPath->GetY() << ")...\n" ;
 	Path * testPath = new Path(obstacles, membership, bestPaths[0], sourcePath, goalPath) ;
 	Node * lowLevelPath = testPath->ComputePath(8) ;
-	cout << "Low level path search complete.\n" ;
+	cout << "Low level path search complete.\n" ;*/
 
 	delete testGraph ;
 	testGraph = 0 ;
 	delete testSearch ;
 	testSearch = 0 ;
-	delete sourcePath ;
-	sourcePath = 0 ;
-	delete goalPath ;
-	goalPath = 0 ;
+	//delete sourcePath ;
+	//sourcePath = 0 ;
+	//delete goalPath ;
+	//goalPath = 0 ;
 	return 0 ;
 }
