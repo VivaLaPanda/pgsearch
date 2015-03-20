@@ -10,6 +10,9 @@
 #include <math.h>
 #include <float.h>
 #include <limits.h>
+#include <stdlib.h>
+#include <typeinfo>
+
 using namespace std ;
 
 typedef unsigned long int ULONG ;
@@ -116,6 +119,39 @@ void DefineWorld(vector< vector<bool> > & obstacles, vector< vector<int> > & mem
 	cout << "complete.\n" ;
 }
 
+vector< vector< double > > makeVertices(double x, double y){
+	vector< vector< double > > vertices;
+	vector< double > tmp;
+	srand (time(NULL));
+	int numVerts;
+	double vertx, verty;
+	int xx = x;
+	int yy = y;
+	double testx, testy;
+	numVerts = 500; // number of vertices to generate wihin specified x, y area
+	tmp.push_back(0);
+	tmp.push_back(0);
+
+	vertices.push_back(tmp);
+	for(int i = 0; i < numVerts; i++){
+		vertx = rand() % xx;
+		verty = rand() % yy;
+		testx = vertx;
+		testy = verty;
+		vector< double > row;
+		row.push_back(testx);
+		row.push_back(testy);
+		vertices.push_back(row);
+	}
+
+//	for(int i = 0; i < vertices.size(); i++){
+//		for(int j = 0; vertices[0].size(); j++){
+//			cout << vertices[i][j] << endl;
+//		}
+//	}
+	return vertices;
+}
+
 int main()
 {
 	cout << "Test program...\n" ;
@@ -137,13 +173,23 @@ int main()
 
 	Graph * testGraph = new Graph(xGrid,yGrid,8) ;*/
 
-	// Create vectors and edges in graph from text files
-	vector< vector<double> > vertVec ;
-	vector< vector<double> > edgeVec ;
-	DefineGraph(vertVec, edgeVec) ;
+	// Uncomment to create vectors and edges in graph from text files
+	//vector< vector<double> > vertVec ;
+	//vector< vector<double> > edgeVec ;
+	//DefineGraph(vertVec, edgeVec) ;
 
 	// Create graph
-	Graph * testGraph = new Graph(vertVec, edgeVec) ;
+	// Need to  make a vector of vertices or adapt the graph.h file to generate them automatically given a x,y area.
+	vector< vector< double > > vertVec2;
+	double x,y, radius;
+	x = 50;
+	y = 50;
+	cout << "Generating Random Vertices in " << x << " by " << y << endl;
+	vertVec2 = makeVertices(x,y);
+	radius= 10.0;// need to rewrite into the formula that determines radius automatically based on max vertex distance
+	cout << "Connecting with radius " << radius << endl;
+	//Graph * testGraph = new Graph(vertVec, edgeVec) ;
+	Graph * testGraph = new Graph(vertVec2, radius);
 	Vertex * sourceSec = testGraph->GetVertices()[0] ; // top-left sector
 	Vertex * goalSec = testGraph->GetVertices()[testGraph->GetNumVertices()-1] ; // bottom-right sector
 

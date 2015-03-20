@@ -371,6 +371,7 @@ Edge ** Graph::GenerateEdges(vector< vector<double> > edges)
 // Connect vertices within specified radius
 vector< vector<double> > Graph::RadiusConnect(vector< vector<double> > vertices, double radius)
 {
+	srand(time(NULL));
 	vector< vector<double> > edges(pow(vertices.size(),2), vector<double>(4)) ;
 	ULONG k = 0 ;
 	
@@ -384,8 +385,8 @@ vector< vector<double> > Graph::RadiusConnect(vector< vector<double> > vertices,
 			{
 				edges[k][0] = (double)i ;
 				edges[k][1] = (double)j ;
-				edges[k][2] = diff ;
-				edges[k][3] = 0.0 ;
+				edges[k][2] = diff;
+				edges[k][3] = rand() % 1; // 0.0 ;
 				k++ ;
 			}
 		}
