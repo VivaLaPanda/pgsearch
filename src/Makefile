@@ -1,7 +1,7 @@
 CC= g++-4.9
 CFLAGS=-std=c++11 -g -O2
 LDFLAGS=
-SOURCES=testPathPreference.cpp
+SOURCES=test.cpp
 OBJECTS=$(SOURCES:.cpp=.o)
 EXECUTABLE=test
 
