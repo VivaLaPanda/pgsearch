@@ -4,5 +4,5 @@ enum searchType {ASTAR, DIJKSTRA, BREADTH, DEPTH} ;
 enum heuristic {ZERO, MANHATTAN, EUCLIDEAN} ;
 enum pathOut {BEST,ALL} ;
 
-searchType SEARCH_TYPE = DIJKSTRA ;
+searchType SEARCH_TYPE = ASTAR ;
 heuristic HEURISTIC = ZERO ;
