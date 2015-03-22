@@ -128,7 +128,7 @@ vector< vector< double > > makeVertices(double x, double y){
 	int xx = x;
 	int yy = y;
 	double testx, testy;
-	numVerts = 500; // number of vertices to generate wihin specified x, y area
+	numVerts = 50; // number of vertices to generate wihin specified x, y area
 	tmp.push_back(0);
 	tmp.push_back(0);
 
