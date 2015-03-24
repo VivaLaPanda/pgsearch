@@ -100,14 +100,22 @@ bool ComputeImprovementProbability(Vertex* A, Vertex* B) //  double c_A0, double
 	return isBetter;
 }
 
+bool TestAstarComparitor(Vertex* A, Vertex* B){
+	if(A->GetActualCost() > B->GetActualCost()){
+		return true;
+	}
+	else{
+		return false;
+	}
+}
 
-void executePath(vector< Node*> GSPaths){
+vector<double>  executePath(vector< Node*> GSPaths){
 	//Initialize Memory
 	cout << endl << "EXECUTING PATH" << endl;
 	Vertex* goal;
 	Vertex* cur_loc;
 	vector < Node*> SGPaths, NewNodes;
-	vector <Vertex*> vertices;
+	vector <Vertex*> vertices, nextVertices;
 	Vertex* TmpVertex;
 	
 	//Reverse Paths because they are first given from goal to start
@@ -133,10 +141,12 @@ void executePath(vector< Node*> GSPaths){
 		cout << "step" << endl;
 
 		//For each node available next, parse into the vertices vector and assign that vertice an actual cost to it
+		nextVertices.clear();
 		for(int i = 0; i < NewNodes.size(); i++){
 			cout << "NODE:" << i << " (" << NewNodes[i]->GetParent()->GetVertex()->GetX() << "," 
 				<< NewNodes[i]->GetParent()->GetVertex()->GetY() << "), cost: " 
 				<< NewNodes[i]->GetParent()->GetMeanCost() << ", var: " << NewNodes[i]->GetParent()->GetVarCost() << endl;
+			nextVertices.push_back(NewNodes[i]->GetParent()->GetVertex());
 			// Assign the parent nodes to the next vertex
 			if(find(vertices.begin(), vertices.end(), NewNodes[i]->GetParent()->GetVertex()) == vertices.end()){ // this is rechecking old vertices that shouldn't need to be checked.
 				cout << "found new vertex" << endl;
@@ -150,14 +160,18 @@ void executePath(vector< Node*> GSPaths){
 		//Set the cur location to the first vertice in the sorted vector
 		//Get the nodes available at the new location
 		cout << "Nodes List Size: " << NewNodes.size() << endl;
-		sort(vertices.begin(), vertices.end(), ComputeImprovementProbability);
-		cur_loc = vertices[0];
+		sort(nextVertices.begin(), nextVertices.end(), ComputeImprovementProbability);
+		for(int j = 0; j < vertices.size(); j++){
+			cout << "Vertex list: " << nextVertices[j]->GetX() << ", "<< nextVertices[j]->GetY() << endl;
+		}
+		cur_loc = nextVertices[0];// this is where the bug is!
+		cout << goal->GetX() << ", " << goal->GetY() << endl;
 		NewNodes = cur_loc->GetNodes();
 		//Status Prints
 		cout << "Current Location: " << cur_loc->GetX() << ", " <<  cur_loc->GetY() << endl;
 		totalCost +=  cur_loc->GetActualCost() ;
 		cout << "Current Cost: " << cur_loc->GetActualCost() << endl;
-	}	
+	}
 	cout << "TOTAL COST = " << totalCost << endl;
 
 	executedCost.close();
@@ -175,8 +189,8 @@ void executePath(vector< Node*> GSPaths){
 	
 	Node* loc;
 	loc = SGPaths[t];
-	double total_cost, cost;
-	total_cost = 0;
+	double astarCost, cost;
+	astarCost = 0;
 	cost = 0;
 	while(loc->GetVertex() != goal){
 		if(find(vertices.begin(), vertices.end(), loc->GetParent()->GetVertex()) == vertices.end() ){ // make this true if vertex hasn't had cost set yet
@@ -189,11 +203,14 @@ void executePath(vector< Node*> GSPaths){
 			cout << "Current Cost: " << loc->GetParent()->GetVertex()->GetActualCost() << endl;
 			cost = loc->GetParent()->GetVertex()->GetActualCost();
 		}
-		total_cost += cost;
+		astarCost += cost;
 		loc = loc->GetParent();
 	}
-	
-	cout << "TOTAL ASTAR COST = " << total_cost << endl; // Need to print the total cost to a file.
+	cout << "TOTAL ASTAR COST = " << astarCost << endl; // Need to print the total cost to a file.
+	vector< double> costs;
+	costs.push_back(totalCost);
+	costs.push_back(astarCost);
+	return costs;
 }
 
 #endif

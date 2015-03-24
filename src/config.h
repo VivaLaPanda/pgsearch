@@ -6,3 +6,5 @@ enum pathOut {BEST,ALL} ;
 
 searchType SEARCH_TYPE = ASTAR ;
 heuristic HEURISTIC = ZERO ;
+
+

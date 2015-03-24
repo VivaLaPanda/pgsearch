@@ -137,93 +137,105 @@ vector< vector< double > > makeVertices(double x, double y, int numVerts){
 int main()
 {
 	cout << "Test program...\n" ;
+	
+	ofstream PGCost;
+	ofstream MeanCost;
+	PGCost.open("PGCost.txt") ;
+	MeanCost.open("MeanCost.txt");
+	for(int numVerts = 30; numVerts < 31; numVerts++ ){
+		/*// Testing on a 4 or 8 connected grid
+		double xMin = 0.0 ;
+		double xInc = 1.0 ;
+		int lenX = 100 ;
+		double yMin = 0.0 ;
+		double yInc = 1.0 ;
+		int lenY = 100 ;
+		vector<double> xGrid(lenX) ;
+		vector<double> yGrid(lenY) ;
+		for (int i = 0; i < lenX; i++)
+			xGrid[i] = xMin + i*xInc ;
 
-	/*// Testing on a 4 or 8 connected grid
-	double xMin = 0.0 ;
-	double xInc = 1.0 ;
-	int lenX = 100 ;
-	double yMin = 0.0 ;
-	double yInc = 1.0 ;
-	int lenY = 100 ;
-	vector<double> xGrid(lenX) ;
-	vector<double> yGrid(lenY) ;
-	for (int i = 0; i < lenX; i++)
-		xGrid[i] = xMin + i*xInc ;
+		for (int i = 0; i < lenY; i++)
+			yGrid[i] = yMin + i*yInc ;
 
-	for (int i = 0; i < lenY; i++)
-		yGrid[i] = yMin + i*yInc ;
+		Graph * testGraph = new Graph(xGrid,yGrid,8) ;*/
 
-	Graph * testGraph = new Graph(xGrid,yGrid,8) ;*/
+		// Uncomment to create vectors and edges in graph from text files
+		//vector< vector<double> > vertVec ;
+		//vector< vector<double> > edgeVec ;
+		//DefineGraph(vertVec, edgeVec) ;
 
-	// Uncomment to create vectors and edges in graph from text files
-	//vector< vector<double> > vertVec ;
-	//vector< vector<double> > edgeVec ;
-	//DefineGraph(vertVec, edgeVec) ;
+		// Create graph
+		// Need to  make a vector of vertices or adapt the graph.h file to generate them automatically given a x,y area.
+		vector< vector< double > > vertVec2;
+		double x, y, radius;
+		x = 100;
+		y = 100;
+		cout << "Generating Random Vertices in " << x << " by " << y << endl;
+		vertVec2 = makeVertices(x,y,numVerts);
+		radius = sqrt((6.0/pi)*x*y*(log((double)numVerts)/(double)numVerts)) ;
+		cout << "Connecting with radius " << radius << endl;
+		//Graph * testGraph = new Graph(vertVec, edgeVec) ;
+		Graph * testGraph = new Graph(vertVec2, radius);
+		Vertex * sourceSec = testGraph->GetVertices()[0] ; // top-left sector
+		Vertex * goalSec = testGraph->GetVertices()[testGraph->GetNumVertices()-1] ; // bottom-right sector
 
-	// Create graph
-	// Need to  make a vector of vertices or adapt the graph.h file to generate them automatically given a x,y area.
-	vector< vector< double > > vertVec2;
-	double x, y, radius;
-	int numVerts;
-	x = 50;
-	y = 50;
-	numVerts = 30 ;// number of vertices to generate wihin specified x, y area
-	cout << "Generating Random Vertices in " << x << " by " << y << endl;
-	vertVec2 = makeVertices(x,y,numVerts);
-	radius = sqrt((6.0/pi)*x*y*(log((double)numVerts)/(double)numVerts)) ;
-	cout << "Connecting with radius " << radius << endl;
-	//Graph * testGraph = new Graph(vertVec, edgeVec) ;
-	Graph * testGraph = new Graph(vertVec2, radius);
-	Vertex * sourceSec = testGraph->GetVertices()[0] ; // top-left sector
-	Vertex * goalSec = testGraph->GetVertices()[testGraph->GetNumVertices()-1] ; // bottom-right sector
+		//Create search object and perform path search from source to goal
+		cout << "Creating search object..." ;
+		Search * testSearch = new Search(testGraph, sourceSec, goalSec) ;
+		cout << "complete.\n" ;
 
-	//Create search object and perform path search from source to goal
-	cout << "Creating search object..." ;
-	Search * testSearch = new Search(testGraph, sourceSec, goalSec) ;
-	cout << "complete.\n" ;
+		cout << "Performing path search from (" <<  sourceSec->GetX() << "," << sourceSec->GetY() << ") to (" ;
+		cout << goalSec->GetX() << "," << goalSec->GetY() << ")...\n" ;
+		pathOut pType = ALL ;
+		vector<Node *> bestPaths = testSearch->PathSearch(pType) ;
+		cout << "Path search complete.\n" ;
 
-	cout << "Performing path search from (" <<  sourceSec->GetX() << "," << sourceSec->GetY() << ") to (" ;
-	cout << goalSec->GetX() << "," << goalSec->GetY() << ")...\n" ;
-	pathOut pType = ALL ;
-	vector<Node *> bestPaths = testSearch->PathSearch(pType) ;
-	cout << "Path search complete.\n" ;
-
-	if (bestPaths.size() != 0)
-	{
-		for (ULONG i = 0; i < (ULONG)bestPaths.size(); i++)
+		if (bestPaths.size() != 0)
 		{
-			cout << "Path " << i << endl ;
-			bestPaths[i]->DisplayPath() ;
+			for (ULONG i = 0; i < (ULONG)bestPaths.size(); i++)
+			{
+				cout << "Path " << i << endl ;
+				bestPaths[i]->DisplayPath() ;
+			}
 		}
+		
+		vector< double > costs;
+		for(int numStatRuns = 0; numStatRuns < 1; numStatRuns++){
+			costs = executePath(bestPaths);
+			cout << costs[0] << " , " << costs[1] << endl;
+			PGCost << costs[0] << ", " ;
+			MeanCost << costs[1] << ", " ;
+		}
+		PGCost << endl;
+		MeanCost << endl;
+
+
+		/*//Read in membership and obstacle text files
+		vector< vector<bool> > obstacles ;
+		vector< vector<int> > membership ;
+		DefineWorld(obstacles, membership) ;
+
+		//Create path object to plan low level path
+		Vertex * sourcePath = new Vertex(2.0,3.0) ;
+		Vertex * goalPath = new Vertex(48.0,17.0) ;
+		cout << "Performing low level path search from (" << sourcePath->GetX() << "," ;
+		cout << sourcePath->GetY() << ") to (" << goalPath->GetX() << "," ;
+		cout << goalPath->GetY() << ")...\n" ;
+		Path * testPath = new Path(obstacles, membership, bestPaths[0], sourcePath, goalPath) ;
+		Node * lowLevelPath = testPath->ComputePath(8) ;
+		cout << "Low level path search complete.\n" ;*/
+
+		delete testGraph ;
+		testGraph = 0 ;
+		delete testSearch ;
+		testSearch = 0 ;
+		//delete sourcePath ;
+		//sourcePath = 0 ;
+		//delete goalPath ;
+		//goalPath = 0 ;
 	}
-
-	executePath(bestPaths);
-
-
-
-
-	/*//Read in membership and obstacle text files
-	vector< vector<bool> > obstacles ;
-	vector< vector<int> > membership ;
-	DefineWorld(obstacles, membership) ;
-
-	//Create path object to plan low level path
-	Vertex * sourcePath = new Vertex(2.0,3.0) ;
-	Vertex * goalPath = new Vertex(48.0,17.0) ;
-	cout << "Performing low level path search from (" << sourcePath->GetX() << "," ;
-	cout << sourcePath->GetY() << ") to (" << goalPath->GetX() << "," ;
-	cout << goalPath->GetY() << ")...\n" ;
-	Path * testPath = new Path(obstacles, membership, bestPaths[0], sourcePath, goalPath) ;
-	Node * lowLevelPath = testPath->ComputePath(8) ;
-	cout << "Low level path search complete.\n" ;*/
-
-	delete testGraph ;
-	testGraph = 0 ;
-	delete testSearch ;
-	testSearch = 0 ;
-	//delete sourcePath ;
-	//sourcePath = 0 ;
-	//delete goalPath ;
-	//goalPath = 0 ;
+	PGCost.close();
+	MeanCost.close();
 	return 0 ;
 }
