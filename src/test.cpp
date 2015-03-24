@@ -116,10 +116,23 @@ vector< vector< double > > makeVertices(double x, double y, int numVerts){
 	double testx, testy;
 
 	for(int i = 0; i < numVerts; i++){
-		vertx = rand() % xx;
-		verty = rand() % yy;
-		vertices[i][0] = vertx ;
-		vertices[i][1] = verty ;
+		if (i == 0)
+		{
+			vertices[i][0] = 0 ;
+			vertices[i][1] = 0 ;
+		}
+		else if (i == numVerts-1)
+		{
+			vertices[i][0] = x ;
+			vertices[i][1] = y ;
+		}
+		else
+		{
+			vertx = rand() % xx;
+			verty = rand() % yy;
+			vertices[i][0] = vertx ;
+			vertices[i][1] = verty ;
+		}
 	}
 
 	// Write vertices to txt file
@@ -142,7 +155,7 @@ int main()
 	ofstream MeanCost;
 	PGCost.open("PGCost.txt") ;
 	MeanCost.open("MeanCost.txt");
-	for(int numVerts = 30; numVerts < 31; numVerts++ ){
+	for(int numVerts = 50; numVerts < 51; numVerts++ ){
 		/*// Testing on a 4 or 8 connected grid
 		double xMin = 0.0 ;
 		double xInc = 1.0 ;
@@ -189,26 +202,32 @@ int main()
 		cout << goalSec->GetX() << "," << goalSec->GetY() << ")...\n" ;
 		pathOut pType = ALL ;
 		vector<Node *> bestPaths = testSearch->PathSearch(pType) ;
-		cout << "Path search complete.\n" ;
+		cout << "Path search complete, " << bestPaths.size() << " paths found.\n" ;
 
-		if (bestPaths.size() != 0)
-		{
-			for (ULONG i = 0; i < (ULONG)bestPaths.size(); i++)
-			{
-				cout << "Path " << i << endl ;
-				bestPaths[i]->DisplayPath() ;
-			}
-		}
+		//if (bestPaths.size() != 0)
+		//{
+		//	for (ULONG i = 0; i < (ULONG)bestPaths.size(); i++)
+		//	{
+		//		cout << "Path " << i << endl ;
+		//		bestPaths[i]->DisplayPath() ;
+		//	}
+		//}
+
+		// Assign true edge costs
+		AssignTrueEdgeCosts(testGraph) ;
 		
+		// Execute path
 		vector< double > costs;
-		for(int numStatRuns = 0; numStatRuns < 1; numStatRuns++){
-			costs = executePath(bestPaths);
-			cout << costs[0] << " , " << costs[1] << endl;
-			PGCost << costs[0] << ", " ;
-			MeanCost << costs[1] << ", " ;
-		}
-		PGCost << endl;
-		MeanCost << endl;
+		costs = executePath(bestPaths,testGraph) ;
+
+		//for(int numStatRuns = 0; numStatRuns < 1; numStatRuns++){
+		//	costs = executePath(bestPaths);
+		//	cout << costs[0] << " , " << costs[1] << endl;
+		//	PGCost << costs[0] << ", " ;
+		//	MeanCost << costs[1] << ", " ;
+		//}
+		//PGCost << endl;
+		//MeanCost << endl;
 
 
 		/*//Read in membership and obstacle text files

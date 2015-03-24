@@ -23,9 +23,12 @@ class Node
 		void SetDepth(ULONG depth) {itsDepth = depth ;}
 		double GetHeuristic() const {return itsHeuristic ;}
 		void SetHeuristic(double h) {itsHeuristic = h ;}
+		double GetMeanCTG() const {return itsMeanCTG ;}
+		double GetVarCTG() const {return itsVarCTG ;}
 		
 		void DisplayPath() ;
 		Node * ReverseList(Node * itsChild) ;
+		void SetCTG(double totalMean, double totalVar) ;
 	private:
 		Vertex * itsVertex ;
 		Node * itsParent ;
@@ -33,6 +36,8 @@ class Node
 		double itsVarCost ;
 		ULONG itsDepth ;
 		double itsHeuristic ;
+		double itsMeanCTG ;
+		double itsVarCTG ;
 } ;
 
 Node::Node(Vertex * vertex)
@@ -43,6 +48,8 @@ Node::Node(Vertex * vertex)
 	itsVarCost = 0.0 ;
 	itsDepth = 0 ;
 	itsHeuristic = 0.0 ;
+	itsMeanCTG = 0.0 ;
+	itsVarCTG = 0.0 ;
 }
 
 Node::Node(Vertex * vertex, nodeType n)
@@ -56,6 +63,7 @@ Node::Node(Vertex * vertex, nodeType n)
 			itsVarCost = 0.0 ;
 			itsDepth = 0.0 ;
 			itsHeuristic = 0.0 ;
+			itsMeanCTG = 0.0 ;
 			break ;
 		default:
 			itsVertex = vertex ;
@@ -64,6 +72,8 @@ Node::Node(Vertex * vertex, nodeType n)
 			itsVarCost = DBL_MAX ;
 			itsDepth = ULONG_MAX ;
 			itsHeuristic = 0.0 ;
+			itsMeanCTG = DBL_MAX ;
+			itsVarCTG = DBL_MAX ;
 	}
 }
 
@@ -75,6 +85,8 @@ Node::Node(Node * parent, Edge * edge)
 	itsVarCost = itsParent->GetVarCost() + edge->GetVarCost() ;
 	itsDepth = itsParent->GetDepth() + 1 ;
 	itsHeuristic = 0.0 ;
+	itsMeanCTG = 0.0 ;
+	itsVarCTG = 0.0 ;
 }
 
 Node::~Node()
@@ -84,8 +96,8 @@ Node::~Node()
 void Node::DisplayPath()
 {
 	cout << "Vertex: (" << itsVertex->GetX() << "," << itsVertex->GetY() << ")\n" ;
-	cout << "Mean cost: " << itsMeanCost << endl ;
-	cout << "Variance: " << itsVarCost << endl ;
+	cout << "Mean cost-to-come: " << itsMeanCost << ", " << "variance: " << itsVarCost << endl ;
+	cout << "Mean cost-to-go: " << itsMeanCTG << ", " << "variance: " << itsVarCTG << endl ;
 	
 	if (itsParent)
 		itsParent->DisplayPath() ;
@@ -108,4 +120,15 @@ Node * Node::ReverseList(Node * itsChild)
 	else
 		return itsParentR ;
 	
+}
+
+void Node::SetCTG(double totalMean, double totalVar)
+{
+	itsMeanCTG = totalMean - itsMeanCost ;
+	itsVarCTG = totalVar - itsVarCost ;
+	
+	//cout << "Mean CTG :" << itsMeanCTG << ", var CTG: " << itsVarCTG << endl ;
+	
+	if (itsParent)
+		itsParent->SetCTG(totalMean, totalVar) ;
 }

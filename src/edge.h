@@ -1,5 +1,6 @@
 // Edge class to contain mean and variance of cost along an edge
-
+#include <random>
+using namespace std;
 class Edge
 {
 	public:
@@ -14,11 +15,14 @@ class Edge
 		void SetMeanCost(double cost) {itsMeanCost = cost ;}
 		double GetVarCost() const {return itsVarCost ;}
 		void SetVarCost(double var) {itsVarCost = var ;}
+		double GetTrueCost() {return itsTrueCost ;}
+		void SetTrueCost() ;
 	private:
 		Vertex * itsVertex1 ;
 		Vertex * itsVertex2 ;
 		double itsMeanCost ;
 		double itsVarCost ;
+		double itsTrueCost ;
 } ;
 
 Edge::Edge(Vertex * v1, Vertex * v2, double cost, double var)
@@ -35,4 +39,13 @@ Edge::~Edge()
 	itsVertex1 = 0 ;
 	delete itsVertex2 ;
 	itsVertex2 = 0 ;
+}
+
+void Edge::SetTrueCost()
+{
+	default_random_engine generator ;
+	normal_distribution<double> distribution(itsMeanCost,itsVarCost) ;
+	itsTrueCost = distribution(generator) ;
+	if (itsTrueCost < 0.0)
+		itsTrueCost = 0.0 ; // May need to change this to Euclidean distance between vertices
 }

@@ -10,20 +10,20 @@ class Vertex
 		void SetX(double x) {itsX = x ;}
 		double GetY() const {return itsY ;}
 		void SetY(double y) {itsY = y ;}
-		double GetCTG()const{return itsCTG ;}
-		void SetCTG(double cost_to_goal) {itsCTG = cost_to_goal ;}
-		void SetNodes(Node* NewNode) {Nodes.push_back(NewNode) ;}
-		vector<Node*> GetNodes() {return Nodes ; }
+		double GetCTC()const{return itsCTC ;}
+		void SetCTC(double cost_to_come) {itsCTC = cost_to_come ;}
+		void SetNodes(vector<Node *> NewNodes) {itsNodes = NewNodes ;}
+		vector<Node *> GetNodes() {return itsNodes ;}
 		double SetActualCost(double ac) {itsActualCost = ac;}
 		double GetActualCost() const {return itsActualCost ;}
 
 
 	private:
-		double itsActualCost;
+		double itsActualCost ;
 		double itsX ;
 		double itsY ;
-		double itsCTG;
-		vector< Node* > Nodes;
+		double itsCTC ;
+		vector<Node *> itsNodes ;
 };
 
 Vertex::Vertex(double x, double y)
