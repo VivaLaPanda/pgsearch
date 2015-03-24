@@ -136,13 +136,14 @@ void executePath(vector< Node*> GSPaths){
 		for(int i = 0; i < NewNodes.size(); i++){
 			cout << "NODE:" << i << " (" << NewNodes[i]->GetParent()->GetVertex()->GetX() << "," 
 				<< NewNodes[i]->GetParent()->GetVertex()->GetY() << "), cost: " 
-				<< NewNodes[i]->GetMeanCost() << ", var: " << NewNodes[i]->GetVarCost() << endl;
+				<< NewNodes[i]->GetParent()->GetMeanCost() << ", var: " << NewNodes[i]->GetParent()->GetVarCost() << endl;
 			// Assign the parent nodes to the next vertex
-			if(find(vertices.begin(), vertices.end(), NewNodes[i]->GetParent()->GetVertex()) == vertices.end()){
+			if(find(vertices.begin(), vertices.end(), NewNodes[i]->GetParent()->GetVertex()) == vertices.end()){ // this is rechecking old vertices that shouldn't need to be checked.
 				cout << "found new vertex" << endl;
 				NewNodes[i]->GetParent()->GetVertex()->SetNodes(NewNodes[i]->GetParent());
 				vertices.push_back(NewNodes[i]->GetParent()->GetVertex());
-				NewNodes[i]->GetParent()->GetVertex()->SetActualCost(generateGaussianNoise(NewNodes[i]->GetParent()->GetMeanCost(), NewNodes[i]->GetParent()->GetVarCost()));			}
+				NewNodes[i]->GetParent()->GetVertex()->SetActualCost(generateGaussianNoise((NewNodes[i]->GetParent()->GetMeanCost()-NewNodes[i]->GetMeanCost()),(NewNodes[i]->GetParent()->GetVarCost()-NewNodes[i]->GetVarCost() )));
+			}
 		}
 
 		//Sort the vertices by the improvement probability function
@@ -155,11 +156,44 @@ void executePath(vector< Node*> GSPaths){
 		//Status Prints
 		cout << "Current Location: " << cur_loc->GetX() << ", " <<  cur_loc->GetY() << endl;
 		totalCost +=  cur_loc->GetActualCost() ;
+		cout << "Current Cost: " << cur_loc->GetActualCost() << endl;
 	}	
 	cout << "TOTAL COST = " << totalCost << endl;
 
 	executedCost.close();
-
+	
+	double min_path;
+	int t;
+	min_path = 100000; // make this max double	
+	for(int i = 0; i < GSPaths.size(); i++){
+		if(GSPaths[i]->GetMeanCost() < min_path){
+			min_path = GSPaths[i]->GetMeanCost();
+			t = i;
+		}
+	}
+	cout << "Min Mean Path Cost " << GSPaths[t]->GetMeanCost() << endl;
+	
+	Node* loc;
+	loc = SGPaths[t];
+	double total_cost, cost;
+	total_cost = 0;
+	cost = 0;
+	while(loc->GetVertex() != goal){
+		if(find(vertices.begin(), vertices.end(), loc->GetParent()->GetVertex()) == vertices.end() ){ // make this true if vertex hasn't had cost set yet
+			cout << "Found new Vertice" << endl;
+			cost = generateGaussianNoise((loc->GetParent()->GetMeanCost()-loc->GetMeanCost()), (loc->GetParent()->GetVarCost()-loc->GetVarCost()));// rewrite to set the vertex cost based on edge to get there.
+			loc->GetParent()->GetVertex()->SetActualCost(cost); //need to only generate cost if hasn't been generated in previous search
+		}
+		else{
+			cout << "Already Defined Vertex" << endl;
+			cout << "Current Cost: " << loc->GetParent()->GetVertex()->GetActualCost() << endl;
+			cost = loc->GetParent()->GetVertex()->GetActualCost();
+		}
+		total_cost += cost;
+		loc = loc->GetParent();
+	}
+	
+	cout << "TOTAL ASTAR COST = " << total_cost << endl; // Need to print the total cost to a file.
 }
 
 #endif

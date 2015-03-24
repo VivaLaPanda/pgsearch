@@ -121,7 +121,7 @@ vector< vector< double > > makeVertices(double x, double y, int numVerts){
 		vertices[i][0] = vertx ;
 		vertices[i][1] = verty ;
 	}
-	
+
 	// Write vertices to txt file
 	ofstream vertsFile ;
 	vertsFile.open("config_files/vertices.txt") ;
@@ -167,7 +167,7 @@ int main()
 	int numVerts;
 	x = 50;
 	y = 50;
-	numVerts = 20 ;// number of vertices to generate wihin specified x, y area
+	numVerts = 30 ;// number of vertices to generate wihin specified x, y area
 	cout << "Generating Random Vertices in " << x << " by " << y << endl;
 	vertVec2 = makeVertices(x,y,numVerts);
 	radius = sqrt((6.0/pi)*x*y*(log((double)numVerts)/(double)numVerts)) ;
