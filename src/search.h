@@ -1,6 +1,8 @@
 // Path search class to store and search a graph
 // contains functions to perform A*, Dijkstra, depth-first search, etc
 
+#include <time.h>
+
 class Search
 {
 	public:
@@ -47,7 +49,10 @@ vector<Node *> Search::PathSearch(pathOut pType)
 	ULONG sourceID = FindSourceID() ;
 	itsQueue = new Queue(new Node(itsGraph->GetVertices()[sourceID], SOURCE)) ;
 	
-	while (!itsQueue->EmptyQueue())
+	clock_t t_start = clock() ;
+	double t_elapse = 0.0 ;
+	
+	while (!itsQueue->EmptyQueue() && t_elapse < 5)
 	{
 		// Pop cheapest node from queue
 		Node * currentNode = itsQueue->PopQueue() ;
@@ -63,7 +68,7 @@ vector<Node *> Search::PathSearch(pathOut pType)
 				currentNode->GetVertex()->GetY() == itsGoal->GetY())
 				break ;
 		}
-			
+		
 		Node * currentNeighbour ;
 		
 		// Find all neighbours
@@ -79,6 +84,8 @@ vector<Node *> Search::PathSearch(pathOut pType)
 			itsQueue->UpdateQueue(currentNeighbour) ;
 			
 		}
+		
+		t_elapse = (float)(clock() - t_start)/CLOCKS_PER_SEC ;
 	}
 	
 	// Check if a path is found

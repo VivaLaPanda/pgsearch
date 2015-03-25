@@ -151,11 +151,10 @@ int main()
 {
 	cout << "Test program...\n" ;
 	
-	ofstream PGCost;
-	ofstream MeanCost;
-	PGCost.open("PGCost.txt") ;
-	MeanCost.open("MeanCost.txt");
-	for(int numVerts = 50; numVerts < 51; numVerts++ ){
+	srand(time(NULL));
+	bool loop = true ;
+	while (loop)
+	{
 		/*// Testing on a 4 or 8 connected grid
 		double xMin = 0.0 ;
 		double xInc = 1.0 ;
@@ -182,6 +181,7 @@ int main()
 		// Need to  make a vector of vertices or adapt the graph.h file to generate them automatically given a x,y area.
 		vector< vector< double > > vertVec2;
 		double x, y, radius;
+		int numVerts = 50 ;
 		x = 100;
 		y = 100;
 		cout << "Generating Random Vertices in " << x << " by " << y << endl;
@@ -213,22 +213,37 @@ int main()
 		//	}
 		//}
 
-		// Assign true edge costs
-		AssignTrueEdgeCosts(testGraph) ;
+		if (bestPaths.size() == 0 || bestPaths.size() > 100)
+			continue ;
+		else
+			loop = false ;
 		
 		// Execute path
-		vector< double > costs;
-		costs = executePath(bestPaths,testGraph) ;
+		vector< double > costs ;
+		int totalStatRuns = 20 ;
+		vector< vector< double > > allCosts(totalStatRuns, vector<double>(3)) ;
 
-		//for(int numStatRuns = 0; numStatRuns < 1; numStatRuns++){
-		//	costs = executePath(bestPaths);
-		//	cout << costs[0] << " , " << costs[1] << endl;
-		//	PGCost << costs[0] << ", " ;
-		//	MeanCost << costs[1] << ", " ;
-		//}
-		//PGCost << endl;
-		//MeanCost << endl;
+		for(int numStatRuns = 0; numStatRuns < totalStatRuns; numStatRuns++)
+		{
+			// Randomly select seed
+			//int seed = rand() % 1000000 ;
+			
+			// Assign true edge costs
+			AssignTrueEdgeCosts(testGraph, numStatRuns+1) ;
+			//AssignTrueEdgeCosts(testGraph, seed+1) ;
+			
+			costs = executePath(bestPaths, testGraph);
+			allCosts[numStatRuns] = costs ;
+		}
 
+		// Write vertices to txt file
+		ofstream costsFile ;
+		costsFile.open("pathCosts.txt") ;
+		for (ULONG i = 0; i < allCosts.size(); i++)
+		{
+			costsFile << allCosts[i][0] << "," << allCosts[i][1] << "," << allCosts[i][2] << "\n" ;
+		}
+		costsFile.close() ;
 
 		/*//Read in membership and obstacle text files
 		vector< vector<bool> > obstacles ;
@@ -254,7 +269,5 @@ int main()
 		//delete goalPath ;
 		//goalPath = 0 ;
 	}
-	PGCost.close();
-	MeanCost.close();
 	return 0 ;
 }

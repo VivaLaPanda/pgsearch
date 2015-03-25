@@ -16,7 +16,7 @@ class Edge
 		double GetVarCost() const {return itsVarCost ;}
 		void SetVarCost(double var) {itsVarCost = var ;}
 		double GetTrueCost() {return itsTrueCost ;}
-		void SetTrueCost() ;
+		void SetTrueCost(default_random_engine generator) ;
 	private:
 		Vertex * itsVertex1 ;
 		Vertex * itsVertex2 ;
@@ -41,9 +41,8 @@ Edge::~Edge()
 	itsVertex2 = 0 ;
 }
 
-void Edge::SetTrueCost()
+void Edge::SetTrueCost(default_random_engine generator)
 {
-	default_random_engine generator ;
 	normal_distribution<double> distribution(itsMeanCost,itsVarCost) ;
 	itsTrueCost = distribution(generator) ;
 	if (itsTrueCost < 0.0)
