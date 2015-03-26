@@ -81,8 +81,8 @@ Node::Node(Node * parent, Edge * edge)
 {
 	itsVertex = edge->GetVertex2() ;
 	itsParent = parent ;
-	itsMeanCost = itsParent->GetMeanCost() + edge->GetMeanCost() ;
-	itsVarCost = itsParent->GetVarCost() + edge->GetVarCost() ;
+	itsMeanCost = itsParent->GetMeanCost() + edge->GetMeanSearch() ;
+	itsVarCost = itsParent->GetVarCost() + edge->GetVarSearch() ;
 	itsDepth = itsParent->GetDepth() + 1 ;
 	itsHeuristic = 0.0 ;
 	itsMeanCTG = 0.0 ;

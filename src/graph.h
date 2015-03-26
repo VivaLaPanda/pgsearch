@@ -386,7 +386,7 @@ vector< vector<double> > Graph::RadiusConnect(vector< vector<double> > vertices,
 				edges[k][0] = (double)i ;
 				edges[k][1] = (double)j ;
 				edges[k][2] = diff;
-				edges[k][3] = (double)(rand() % 1500)/100.0; // 0.0 ;
+				edges[k][3] = (double)(rand() % 2000)/100.0; // 0.0 ;
 				k++ ;
 			}
 		}

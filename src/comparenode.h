@@ -10,7 +10,7 @@ class CompareNode
 					default:
 						double n1Cost = n1->GetMeanCost() + n1->GetHeuristic() ;
 						double n2Cost = n2->GetMeanCost() + n2->GetHeuristic() ;
-						return (n1Cost > n2Cost && n1->GetVarCost() > n2->GetVarCost()) ;
+						return (n1Cost >= n2Cost && n1->GetVarCost() >= n2->GetVarCost()) ;
 						/*if (n1Cost > n2Cost && n1->GetVarCost() > n2->GetVarCost())
 							return true ;
 						else if (n2Cost > n1Cost && n2->GetVarCost() > n1->GetVarCost())

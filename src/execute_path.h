@@ -88,6 +88,15 @@ void AssignTrueEdgeCosts(Graph * searchGraph, int seed)
 	cout << "Using generator(" << generator() << ")...\n" ;
 	for (ULONG i = 0; i < numEdges; i++)
 		allEdges[i]->SetTrueCost(generator) ;
+	
+	/*// Write true costs to txt file
+	ofstream edgesFile ;
+	edgesFile.open("config_files/true_edges.txt") ;
+	for (ULONG i = 0; i < numEdges; i++)
+	{
+		edgesFile << allEdges[i]->GetTrueCost() << endl ;
+	}
+	edgesFile.close() ;*/
 }
 
 void SetTrueEdgeCosts(Vertex * v1, vector<Vertex *> v2, Graph * searchGraph)
@@ -118,6 +127,104 @@ void SetTrueEdgeCosts(Vertex * v1, vector<Vertex *> v2, Graph * searchGraph)
 	}
 }
 
+void ResetEdges(Graph * graph)
+{
+	Edge ** graphEdges = graph->GetEdges() ;
+	ULONG numEdges = graph->GetNumEdges() ;
+	for (ULONG i = 0; i < numEdges; i++)
+	{
+		graphEdges[i]->SetMeanSearch(graphEdges[i]->GetMeanCost()) ;
+		graphEdges[i]->SetVarSearch(graphEdges[i]->GetVarCost()) ;
+	}
+}
+
+double DynamicAStar(Graph * graph, Vertex * source, Vertex * goal)
+{
+	double cost = 0.0 ;
+	Vertex * curLoc = source ;
+	
+	while ((curLoc->GetX() != goal->GetX() || curLoc->GetY() != goal->GetY()))
+	{
+		cout << "Current Location: (" << curLoc->GetX() << "," <<  curLoc->GetY() << ")\n" ;
+		
+		// Assign true costs to edges from current vertex
+		vector<Edge *> curEdges = graph->GetNeighbours(curLoc) ;
+		for (int i = 0; i < curEdges.size(); i++)
+		{
+			curEdges[i]->SetMeanSearch(curEdges[i]->GetTrueCost()) ;
+			curEdges[i]->SetVarSearch(0.0) ;
+		}
+		
+		//Create search object and perform path search from source to goal
+		Search * testSearch = new Search(graph, curLoc, goal) ;
+		pathOut pType = BEST ;
+		vector<Node *> bestPathsGS = testSearch->PathSearch(pType) ;
+		
+		// Reverse path
+		Node * bestPathSG = bestPathsGS[0]->ReverseList(0) ;
+		
+		// Step through path and accumulate traversal cost
+		curLoc = bestPathSG->GetParent()->GetVertex() ;
+		cost += bestPathSG->GetParent()->GetMeanCost() ;
+		
+		// Delete pointers on the heap
+		delete testSearch ;
+		testSearch = 0 ;
+	}
+	
+	if (curLoc->GetX() != goal->GetX() || curLoc->GetY() != goal->GetY())
+	{
+		cout << "Failed to reach goal vertex!\n" ;
+		cost = DBL_MAX ;
+	}
+	else
+		cout << "Goal vertex (" << curLoc->GetX() << "," <<  curLoc->GetY() << ") reached! "
+			<< "Total cost: " << cost << endl ;
+		
+	// Reset edge search costs
+	ResetEdges(graph) ;
+	
+	return cost ;
+}
+
+double OptimalAStar(Graph * graph, Vertex * source, Vertex * goal)
+{
+	// Search using true costs of all edges
+	ULONG numEdges = graph->GetNumEdges() ;
+	for (ULONG i = 0; i < numEdges; i++)
+	{
+		graph->GetEdges()[i]->SetMeanSearch(graph->GetEdges()[i]->GetTrueCost()) ;
+		graph->GetEdges()[i]->SetVarSearch(0.0) ;
+	}
+	
+	//Create search object and perform path search from source to goal
+	Search * testSearch = new Search(graph, source, goal) ;
+	pathOut pType = BEST ;
+	vector<Node *> bestPathsGS = testSearch->PathSearch(pType) ;
+	
+	double cost = 0.0 ;
+	
+	if (bestPathsGS.size() != 0)
+	{
+		cost = bestPathsGS[0]->GetMeanCost() ;
+		cout << "Total cost: " << cost << endl ;
+	}
+	else
+	{
+		cout << "Failed to reach goal vertex!\n" ;
+		cost = DBL_MAX ;
+	}
+	
+	// Reset edge search costs
+	ResetEdges(graph) ;
+	
+	// Delete pointers on the heap
+	delete testSearch ;
+	testSearch = 0 ;
+	
+	return cost ;
+}
+
 vector<double> executePath(vector< Node*> GSPaths, Graph * searchGraph)
 {
 	vector <Node *> SGPaths ; // store all paths, start to goal
@@ -134,8 +241,10 @@ vector<double> executePath(vector< Node*> GSPaths, Graph * searchGraph)
 	for(int i = 0; i < SGPaths.size(); i++)
 		SGPaths[i]->SetCTG(GSPaths[i]->GetMeanCost(),GSPaths[i]->GetVarCost()) ;
 	
+	/**********************************************************************************************/
 	// Step through paths
-	cout << "Stepping through paths..." << endl ;
+	cout << "Traversing PG search paths..." << endl ;
+	totalCost = 0 ;
 	Vertex * curLoc = SGPaths[0]->GetVertex() ;
 	Vertex * goal = GSPaths[0]->GetVertex() ;
 	newNodes = SGPaths ;
@@ -150,14 +259,23 @@ vector<double> executePath(vector< Node*> GSPaths, Graph * searchGraph)
 		// Extract nodes of current vertex
 		newNodes = curLoc->GetNodes() ;
 		
+		// Display all nodes
+		/*for (int i = 0; i < newNodes.size(); i++)
+		{
+			cout << "Node " << i << ": (" << newNodes[i]->GetVertex()->GetX() << ","
+			<< newNodes[i]->GetVertex()->GetY() << ") (" << newNodes[i]->GetParent()->GetVertex()->GetX()
+			<< "," << newNodes[i]->GetParent()->GetVertex()->GetY() << ")\n" ;
+		}*/
+		
 		// Identify next vertices
 		for (int i = 0; i < newNodes.size(); i++)
 		{
 			bool newVert = true ;
 			for (int j = 0; j < nextVerts.size(); j++)
 			{
-				if (nextVerts[j]->GetX() == newNodes[i]->GetParent()->GetVertex()->GetX() &&
-					nextVerts[j]->GetY() == newNodes[i]->GetParent()->GetVertex()->GetY())
+				if ((nextVerts[j]->GetX() == newNodes[i]->GetParent()->GetVertex()->GetX() &&
+					nextVerts[j]->GetY() == newNodes[i]->GetParent()->GetVertex()->GetY()) ||
+					(nextVerts[j]->GetX() == curLoc->GetX() && nextVerts[j]->GetY() == curLoc->GetY()))
 				{
 					newVert = false ;
 					break ;
@@ -167,10 +285,17 @@ vector<double> executePath(vector< Node*> GSPaths, Graph * searchGraph)
 				nextVerts.push_back(newNodes[i]->GetParent()->GetVertex()) ;
 		}
 		
-		// Identify next vertex path nodes
-		tmpNodes.clear() ;
+		// Display next vertices
+		/*cout << "Vertices: \n" ;
 		for (int i = 0; i < nextVerts.size(); i++)
 		{
+			cout << "(" << nextVerts[i]->GetX() << "," << nextVerts[i]->GetY() << ")\n" ;
+		}*/
+		
+		// Identify next vertex path nodes
+		for (int i = 0; i < nextVerts.size(); i++)
+		{
+			tmpNodes.clear() ;
 			for (int j = 0; j < newNodes.size(); j++)
 			{
 				if (nextVerts[i]->GetX() == newNodes[j]->GetParent()->GetVertex()->GetX() &&
@@ -269,8 +394,9 @@ vector<double> executePath(vector< Node*> GSPaths, Graph * searchGraph)
 			for (int j = 0; j < nextVerts.size(); j++)
 			{
 				
-				if (nextVerts[j]->GetX() == newNodes[i]->GetParent()->GetVertex()->GetX() &&
-					nextVerts[j]->GetY() == newNodes[i]->GetParent()->GetVertex()->GetY())
+				if ((nextVerts[j]->GetX() == newNodes[i]->GetParent()->GetVertex()->GetX() &&
+					nextVerts[j]->GetY() == newNodes[i]->GetParent()->GetVertex()->GetY()) ||
+					(nextVerts[j]->GetX() == curLoc->GetX() && nextVerts[j]->GetY() == curLoc->GetY()))
 				{
 					newVert = false ;
 					break ;
@@ -281,9 +407,9 @@ vector<double> executePath(vector< Node*> GSPaths, Graph * searchGraph)
 		}
 		
 		// Identify next vertex path nodes
-		tmpNodes.clear() ;
 		for (int i = 0; i < nextVerts.size(); i++)
 		{
+			tmpNodes.clear() ;
 			for (int j = 0; j < newNodes.size(); j++)
 			{
 				if (!newNodes[j]->GetParent())
@@ -312,6 +438,22 @@ vector<double> executePath(vector< Node*> GSPaths, Graph * searchGraph)
 	
 	cout << "Goal vertex (" << curLoc->GetX() << "," <<  curLoc->GetY() << ") reached! "
 		<< "Total cost: " << totalCost << endl ;
+	allCosts.push_back(totalCost) ;
+	
+	/**********************************************************************************************/
+	// Traverse D* Lite search
+	cout << "Traversing dynamic A* path...\n" ;
+	totalCost = 0 ;
+	totalCost = DynamicAStar(searchGraph, SGPaths[0]->GetVertex(), GSPaths[0]->GetVertex()) ;
+	
+	allCosts.push_back(totalCost) ;
+	
+	/**********************************************************************************************/
+	// Optimal path cost
+	cout << "Traversing optimal path...\n" ;
+	totalCost = 0 ;
+	totalCost = OptimalAStar(searchGraph, SGPaths[0]->GetVertex(), GSPaths[0]->GetVertex()) ;
+	
 	allCosts.push_back(totalCost) ;
 	
 	return allCosts ;

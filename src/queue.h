@@ -84,7 +84,7 @@ bool Queue::CompareNodes(const Node * n1, const Node * n2) const
 {
 	double n1Cost = n1->GetMeanCost() ;
 	double n2Cost = n2->GetMeanCost() ;
-	return (n1Cost > n2Cost && n1->GetVarCost() > n2->GetVarCost()) ;
+	return (n1Cost >= n2Cost && n1->GetVarCost() >= n2->GetVarCost()) ;
 /*	if (n1Cost > n2Cost && n1->GetVarCost() > n2->GetVarCost())
 		return true ;
 	else if (n2Cost > n1Cost && n2->GetVarCost() > n1->GetVarCost())

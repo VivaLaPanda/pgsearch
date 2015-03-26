@@ -73,16 +73,34 @@ vector<Node *> Search::PathSearch(pathOut pType)
 		
 		// Find all neighbours
 		vector<Edge *> neighbours = itsGraph->GetNeighbours(currentNode->GetVertex()) ;
-		
+
 		// Update neighbours
 		for (ULONG i = 0; i < (ULONG)neighbours.size(); i++)
 		{
-			// Create neighbour node
-			currentNeighbour = new Node(currentNode, neighbours[i]) ;
-			UpdateNode(currentNeighbour) ;
+			// Check if neighbour vertex is already in closed set
+			bool newNeighbour = true ;
+			if (pType == BEST)
+			{
+				Vertex * vcheck = neighbours[i]->GetVertex2() ;
+				for (ULONG j = 0; j < itsQueue->GetClosed().size(); j++)
+				{
+					if (itsQueue->GetClosed()[j]->GetVertex()->GetX() == vcheck->GetX() &&
+						itsQueue->GetClosed()[j]->GetVertex()->GetY() == vcheck->GetY())
+					{
+						newNeighbour = false ;
+						break ;
+					}
+				}
+			}
 			
-			itsQueue->UpdateQueue(currentNeighbour) ;
+			if (newNeighbour)
+			{
+				// Create neighbour node
+				currentNeighbour = new Node(currentNode, neighbours[i]) ;
+				UpdateNode(currentNeighbour) ;
 			
+				itsQueue->UpdateQueue(currentNeighbour) ;
+			}
 		}
 		
 		t_elapse = (float)(clock() - t_start)/CLOCKS_PER_SEC ;
@@ -122,7 +140,7 @@ vector<Node *> Search::PathSearch(pathOut pType)
 		}
 		
 		bestPath.resize(k) ;
-		cout << "Found " << k << " best path/s from source to goal.\n" ;
+		//cout << "Found " << k << " best path/s from source to goal.\n" ;
 		
 		return bestPath ;
 	}

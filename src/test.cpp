@@ -181,7 +181,7 @@ int main()
 		// Need to  make a vector of vertices or adapt the graph.h file to generate them automatically given a x,y area.
 		vector< vector< double > > vertVec2;
 		double x, y, radius;
-		int numVerts = 50 ;
+		int numVerts = 100 ;
 		x = 100;
 		y = 100;
 		cout << "Generating Random Vertices in " << x << " by " << y << endl;
@@ -204,24 +204,42 @@ int main()
 		vector<Node *> bestPaths = testSearch->PathSearch(pType) ;
 		cout << "Path search complete, " << bestPaths.size() << " paths found.\n" ;
 
-		//if (bestPaths.size() != 0)
-		//{
-		//	for (ULONG i = 0; i < (ULONG)bestPaths.size(); i++)
-		//	{
-		//		cout << "Path " << i << endl ;
-		//		bestPaths[i]->DisplayPath() ;
-		//	}
-		//}
+		// Write paths to file
+		if (bestPaths.size() != 0)
+		{
+			ofstream pathsFile ;
+			pathsFile.open("results/paths.txt") ;
+			for (ULONG i = 0; i < (ULONG)bestPaths.size(); i++)
+			{
+				pathsFile << "Path " << i << endl ;
+				Node * curNode = bestPaths[i] ;
+				while (curNode->GetParent())
+				{
+					pathsFile << "(" << curNode->GetVertex()->GetX() << ","
+						<< curNode->GetVertex()->GetY() << ")\n" ;
+					curNode = curNode->GetParent() ;
+				}
+				pathsFile << "(" << curNode->GetVertex()->GetX() << ","
+					<< curNode->GetVertex()->GetY() << ")\n\n" ;				
+			}
+			pathsFile.close() ;
+		}
 
-		if (bestPaths.size() == 0 || bestPaths.size() > 100)
+		if (bestPaths.size() < 30 || bestPaths.size() > 100)
+		{
+			delete testGraph ;
+			testGraph = 0 ;
+			delete testSearch ;
+			testSearch = 0 ;
 			continue ;
+		}
 		else
 			loop = false ;
 		
 		// Execute path
 		vector< double > costs ;
-		int totalStatRuns = 20 ;
-		vector< vector< double > > allCosts(totalStatRuns, vector<double>(3)) ;
+		int totalStatRuns = 100 ;
+		vector< vector< double > > allCosts(totalStatRuns, vector<double>(5)) ;
 
 		for(int numStatRuns = 0; numStatRuns < totalStatRuns; numStatRuns++)
 		{
@@ -238,10 +256,14 @@ int main()
 
 		// Write vertices to txt file
 		ofstream costsFile ;
-		costsFile.open("pathCosts.txt") ;
+		costsFile.open("results/pathCosts5.txt") ;
 		for (ULONG i = 0; i < allCosts.size(); i++)
 		{
-			costsFile << allCosts[i][0] << "," << allCosts[i][1] << "," << allCosts[i][2] << "\n" ;
+			for (int j = 0; j < allCosts[i].size(); j++)
+			{
+				costsFile << allCosts[i][j] << "," ;
+			}
+			costsFile << "\n" ;
 		}
 		costsFile.close() ;
 

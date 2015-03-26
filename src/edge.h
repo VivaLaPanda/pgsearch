@@ -17,12 +17,18 @@ class Edge
 		void SetVarCost(double var) {itsVarCost = var ;}
 		double GetTrueCost() {return itsTrueCost ;}
 		void SetTrueCost(default_random_engine generator) ;
+		double GetMeanSearch() const {return itsMeanSearch ;}
+		void SetMeanSearch(double cost) {itsMeanSearch = cost ;}
+		double GetVarSearch() const {return itsVarSearch ;}
+		void SetVarSearch(double var) {itsVarSearch = var ;}
 	private:
 		Vertex * itsVertex1 ;
 		Vertex * itsVertex2 ;
 		double itsMeanCost ;
 		double itsVarCost ;
 		double itsTrueCost ;
+		double itsMeanSearch ; // Actual value used in search
+		double itsVarSearch ; // Actual value used in search
 } ;
 
 Edge::Edge(Vertex * v1, Vertex * v2, double cost, double var)
@@ -31,6 +37,8 @@ Edge::Edge(Vertex * v1, Vertex * v2, double cost, double var)
 	itsVertex2 = v2 ;
 	itsMeanCost = cost ;
 	itsVarCost = var ;
+	itsMeanSearch = cost ;
+	itsVarSearch = var ;
 }
 
 Edge::~Edge()
