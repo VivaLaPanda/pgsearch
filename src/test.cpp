@@ -16,6 +16,7 @@
 using namespace std ;
 
 typedef unsigned long int ULONG ;
+int trialNum ;
 
 #include "config.h"
 #include "vertex.h"
@@ -136,8 +137,12 @@ vector< vector< double > > makeVertices(double x, double y, int numVerts){
 	}
 
 	// Write vertices to txt file
+	stringstream vFileName ;
+	vFileName << "config_files/vertices" << trialNum << ".txt" ;
+
 	ofstream vertsFile ;
-	vertsFile.open("config_files/vertices.txt") ;
+	vertsFile.open(vFileName.str().c_str()) ;
+
 	for (ULONG i = 0; i < vertices.size(); i++)
 	{
 		vertsFile << vertices[i][0] << "," << vertices[i][1] << "\n" ;
@@ -149,7 +154,10 @@ vector< vector< double > > makeVertices(double x, double y, int numVerts){
 
 int main()
 {
-	cout << "Test program...\n" ;
+	cout << "Trial number: " ;
+	cin >> trialNum ;
+	
+	cout << "Test program " << trialNum << "...\n" ;
 	
 	srand(time(NULL));
 	bool loop = true ;
@@ -207,8 +215,12 @@ int main()
 		// Write paths to file
 		if (bestPaths.size() != 0)
 		{
+			stringstream pFileName ;
+			pFileName << "results/bestPaths" << trialNum << ".txt" ;
+			
 			ofstream pathsFile ;
-			pathsFile.open("results/paths.txt") ;
+			pathsFile.open(pFileName.str().c_str()) ;
+			
 			for (ULONG i = 0; i < (ULONG)bestPaths.size(); i++)
 			{
 				pathsFile << "Path " << i << endl ;
@@ -255,8 +267,12 @@ int main()
 		}
 
 		// Write vertices to txt file
+		stringstream cFileName ;
+		cFileName << "results/pathCosts" << trialNum << ".txt" ;
+		
 		ofstream costsFile ;
-		costsFile.open("results/pathCosts5.txt") ;
+		costsFile.open(cFileName.str().c_str()) ;
+		
 		for (ULONG i = 0; i < allCosts.size(); i++)
 		{
 			for (int j = 0; j < allCosts[i].size(); j++)

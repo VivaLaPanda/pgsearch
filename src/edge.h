@@ -51,8 +51,11 @@ Edge::~Edge()
 
 void Edge::SetTrueCost(default_random_engine generator)
 {
+	double diff_x = itsVertex1->GetX() - itsVertex2->GetX() ;
+	double diff_y = itsVertex1->GetY() - itsVertex2->GetY() ;
+	double diff = sqrt(pow(diff_x,2) + pow(diff_y,2)) ;
 	normal_distribution<double> distribution(itsMeanCost,itsVarCost) ;
 	itsTrueCost = distribution(generator) ;
-	if (itsTrueCost < 0.0)
-		itsTrueCost = 0.0 ; // May need to change this to Euclidean distance between vertices
+	if (itsTrueCost < diff)
+		itsTrueCost = diff ;
 }

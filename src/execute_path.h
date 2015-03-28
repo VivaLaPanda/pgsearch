@@ -143,7 +143,10 @@ double DynamicAStar(Graph * graph, Vertex * source, Vertex * goal)
 	double cost = 0.0 ;
 	Vertex * curLoc = source ;
 	
-	while ((curLoc->GetX() != goal->GetX() || curLoc->GetY() != goal->GetY()))
+	clock_t t_start = clock() ;
+	double t_elapse = 0.0 ;
+	
+	while ((curLoc->GetX() != goal->GetX() || curLoc->GetY() != goal->GetY()) && t_elapse < 5)
 	{
 		cout << "Current Location: (" << curLoc->GetX() << "," <<  curLoc->GetY() << ")\n" ;
 		
@@ -170,6 +173,8 @@ double DynamicAStar(Graph * graph, Vertex * source, Vertex * goal)
 		// Delete pointers on the heap
 		delete testSearch ;
 		testSearch = 0 ;
+		
+		t_elapse = (float)(clock() - t_start)/CLOCKS_PER_SEC ;
 	}
 	
 	if (curLoc->GetX() != goal->GetX() || curLoc->GetY() != goal->GetY())

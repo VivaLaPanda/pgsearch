@@ -385,8 +385,8 @@ vector< vector<double> > Graph::RadiusConnect(vector< vector<double> > vertices,
 			{
 				edges[k][0] = (double)i ;
 				edges[k][1] = (double)j ;
-				edges[k][2] = diff;
-				edges[k][3] = (double)(rand() % 2000)/100.0; // 0.0 ;
+				edges[k][2] = diff + (double)(rand() % 10000)/100.0 ;
+				edges[k][3] = (double)(rand() % 2000)/100.0 ; // 0.0 ;
 				k++ ;
 			}
 		}
@@ -395,8 +395,12 @@ vector< vector<double> > Graph::RadiusConnect(vector< vector<double> > vertices,
 	edges.resize(k) ;
 	
 	// Write edges to txt file
+	stringstream eFileName ;
+	eFileName << "config_files/edges" << trialNum << ".txt" ;
+	
 	ofstream edgesFile ;
-	edgesFile.open("config_files/edges.txt") ;
+	edgesFile.open(eFileName.str().c_str()) ;
+	
 	for (ULONG i = 0; i < edges.size(); i++)
 	{
 		edgesFile << edges[i][0] << "," << edges[i][1] << ","
