@@ -17,6 +17,7 @@ class Edge
 		void SetVarCost(double var) {itsVarCost = var ;}
 		double GetTrueCost() {return itsTrueCost ;}
 		void SetTrueCost(default_random_engine generator) ;
+		void SetTrueCost(double cost) {itsTrueCost = cost ;}
 		double GetMeanSearch() const {return itsMeanSearch ;}
 		void SetMeanSearch(double cost) {itsMeanSearch = cost ;}
 		double GetVarSearch() const {return itsVarSearch ;}

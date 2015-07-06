@@ -192,6 +192,106 @@ double DynamicAStar(Graph * graph, Vertex * source, Vertex * goal)
 	return cost ;
 }
 
+Graph * BoundSearchGraph(vector< Node* > SGPaths, Graph * searchGraph)
+{
+    vector< vector<double> > vertices ;
+    vector< vector<double> > edges ;
+    
+    // Store first vertex (start vertex)
+    vector<double> v1 ;
+    v1.push_back(SGPaths[0]->GetVertex()->GetX()) ;
+    v1.push_back(SGPaths[0]->GetVertex()->GetY()) ;
+    vertices.push_back(v1) ;
+    
+    for (int i = 0; i < SGPaths.size(); i++)
+    {
+        Node * currentNode = SGPaths[i] ;
+        int v1Ind = 0 ;
+        
+        while (currentNode->GetParent())
+        {
+            double currentCost = currentNode->GetMeanCost() ;
+            double currentVar = currentNode->GetVarCost() ;
+            
+            // Check if vertex is already in list
+            vector<double> v2 ;
+            v2.push_back(currentNode->GetParent()->GetVertex()->GetX()) ;
+            v2.push_back(currentNode->GetParent()->GetVertex()->GetY()) ;
+            bool newVertex = true ;
+            int v2Ind = 0 ;
+            for (int j = 0; j < vertices.size(); j++)
+            {
+                if (v2[0] == vertices[j][0] && v2[1] == vertices[j][1])
+                {
+                    newVertex = false ;
+                    v2Ind = j ;
+                    break ;
+                }
+            }
+            
+            if (newVertex)
+            {
+                vertices.push_back(v2) ;
+                v2Ind = vertices.size()-1 ;
+            }
+            
+            // Check if edge is already in list
+            vector<double> e1 ;
+            double cost = currentNode->GetParent()->GetMeanCost() - currentCost ;
+            double var = currentNode->GetParent()->GetVarCost() - currentVar ;
+            e1.push_back(v1Ind) ;
+            e1.push_back(v2Ind) ;
+            e1.push_back(cost) ;
+            e1.push_back(var) ;
+            
+            bool newEdge = true ;
+            for (int j = 0; j < edges.size(); j++)
+            {
+                if (e1[0] == edges[j][0] && e1[1] == edges[j][1])
+                {
+                    newEdge = false ;
+                    break ;
+                }
+            }
+            if (newEdge)
+            {
+                edges.push_back(e1) ;
+            }
+            
+            // Step to parent node
+            currentNode = currentNode->GetParent() ;
+            v1Ind = v2Ind ;
+        }
+    }
+    
+    Graph * boundedGraph = new Graph(vertices, edges) ;
+    // Assign true edge costs
+    Edge ** boundedEdges = boundedGraph->GetEdges() ;
+    int numBoundedEdges = boundedGraph->GetNumEdges() ;
+    Edge ** allEdges = searchGraph->GetEdges() ;
+    ULONG numAllEdges = searchGraph->GetNumEdges() ;
+    int count = 0 ;
+    int count0 = 0 ;
+    
+    for (int i = 0; i < numBoundedEdges; i++)
+    {
+        count0 = count ;
+        for (ULONG j = 0; j < numAllEdges; j++)
+        {
+            if (boundedEdges[i]->GetVertex1()->GetX() == allEdges[j]->GetVertex1()->GetX() &&
+            boundedEdges[i]->GetVertex1()->GetY() == allEdges[j]->GetVertex1()->GetY() &&
+            boundedEdges[i]->GetVertex2()->GetX() == allEdges[j]->GetVertex2()->GetX() &&
+            boundedEdges[i]->GetVertex2()->GetY() == allEdges[j]->GetVertex2()->GetY())
+            {
+                boundedEdges[i]->SetTrueCost(allEdges[j]->GetTrueCost()) ;
+                count += 1 ;
+                break ;
+            }
+        }
+    }
+    return boundedGraph ;
+}
+
 double OptimalAStar(Graph * graph, Vertex * source, Vertex * goal)
 {
 	// Search using true costs of all edges
@@ -265,12 +365,12 @@ vector<double> executePath(vector< Node*> GSPaths, Graph * searchGraph)
 		newNodes = curLoc->GetNodes() ;
 		
 		// Display all nodes
-		/*for (int i = 0; i < newNodes.size(); i++)
-		{
-			cout << "Node " << i << ": (" << newNodes[i]->GetVertex()->GetX() << ","
-			<< newNodes[i]->GetVertex()->GetY() << ") (" << newNodes[i]->GetParent()->GetVertex()->GetX()
-			<< "," << newNodes[i]->GetParent()->GetVertex()->GetY() << ")\n" ;
-		}*/
+		//for (int i = 0; i < newNodes.size(); i++)
+		//{
+		//	cout << "Node " << i << ": (" << newNodes[i]->GetVertex()->GetX() << ","
+		//	<< newNodes[i]->GetVertex()->GetY() << ") (" << newNodes[i]->GetParent()->GetVertex()->GetX()
+		//	<< "," << newNodes[i]->GetParent()->GetVertex()->GetY() << ")\n" ;
+		//}
 		
 		// Identify next vertices
 		for (int i = 0; i < newNodes.size(); i++)
@@ -291,11 +391,11 @@ vector<double> executePath(vector< Node*> GSPaths, Graph * searchGraph)
 		}
 		
 		// Display next vertices
-		/*cout << "Vertices: \n" ;
-		for (int i = 0; i < nextVerts.size(); i++)
-		{
-			cout << "(" << nextVerts[i]->GetX() << "," << nextVerts[i]->GetY() << ")\n" ;
-		}*/
+		//cout << "Vertices: \n" ;
+		//for (int i = 0; i < nextVerts.size(); i++)
+		//{
+		//	cout << "(" << nextVerts[i]->GetX() << "," << nextVerts[i]->GetY() << ")\n" ;
+		//}
 		
 		// Identify next vertex path nodes
 		for (int i = 0; i < nextVerts.size(); i++)
@@ -446,12 +546,27 @@ vector<double> executePath(vector< Node*> GSPaths, Graph * searchGraph)
 	allCosts.push_back(totalCost) ;
 	
 	/**********************************************************************************************/
-	// Traverse D* Lite search
+	// Traverse D* search
 	cout << "Traversing dynamic A* path...\n" ;
 	totalCost = 0 ;
 	totalCost = DynamicAStar(searchGraph, SGPaths[0]->GetVertex(), GSPaths[0]->GetVertex()) ;
 	
 	allCosts.push_back(totalCost) ;
+	
+	/**********************************************************************************************/
+	// Traverse D* on bounded path
+	cout << "Traversing dynamic A* path on bounded set...\n" ;
+	
+	//Generate new graph consisting only of bounded set
+	Graph * boundedGraph = BoundSearchGraph(SGPaths, searchGraph) ;
+
+	totalCost = 0 ;
+	totalCost = DynamicAStar(boundedGraph, SGPaths[0]->GetVertex(), GSPaths[0]->GetVertex()) ;
+	
+	allCosts.push_back(totalCost) ;
+	
+	delete boundedGraph ;
+	boundedGraph = 0 ;
 	
 	/**********************************************************************************************/
 	// Optimal path cost

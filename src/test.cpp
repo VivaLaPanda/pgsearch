@@ -251,7 +251,7 @@ int main()
 		// Execute path
 		vector< double > costs ;
 		int totalStatRuns = 100 ;
-		vector< vector< double > > allCosts(totalStatRuns, vector<double>(5)) ;
+		vector< vector< double > > allCosts(totalStatRuns, vector<double>(6)) ;
 
 		for(int numStatRuns = 0; numStatRuns < totalStatRuns; numStatRuns++)
 		{
