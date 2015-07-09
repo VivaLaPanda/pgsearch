@@ -1,5 +1,5 @@
 #include <vector>
-#include <iostream> 
+#include <iostream>
 #include <numeric>
 #include <math.h>
 //#include <boost/accumulators/numeric/functional/vector.hpp>
@@ -10,50 +10,78 @@
 using namespace std;
 
 class DistFit{
-		vector< double > points;
-		vector< double > log_points;
-		double mean, variance;
+	private:
+		double mu, sigma, mean, variance;
+		vector< vector < double > > edges;
+		vector< vector < double > > log_edges;
+		vector< vector< double > > mean_and_vars;
+		vector< vector< double > > log_mean_and_vars;
 	public:
 		DistFit();
-		void add_point(double new_point);
-		double get_mean() const {return mean; };
+		vector< double > calc_mean_var(vector< double >);
+		void add_edge(double, int);
+		void add_vector( vector< double >);
+		vector< vector< double> > get_normMV() const {return mean_and_vars; };
+		vector< vector< double> > get_logMV() const {return log_mean_and_vars;};
 		double get_variance() const {return variance; };
 };
 
 DistFit::DistFit(){
 	mean = 0;
 	variance = 0;
+	mu = 0;
+	sigma = 0;
+	cout << "TEST3";
+}
+
+vector< double > DistFit::calc_mean_var(vector< double > points){
+
+	double sum = accumulate(points.begin(), points.end(), 0.0);
+	double mu = sum / points.size();
+	double sumSquares = inner_product(points.begin(), points.end(), points.begin(), 0.0);
+	double sigma = sumSquares/points.size() - mu*mu;
+
+	//cout << "Mean: " << mean << endl;
+	//cout << "Variance: " << variance << endl;
+
+	vector< double > m_and_v;
+	m_and_v.push_back(mu);
+	m_and_v.push_back(sigma);
+
+	cout << "TEST4";
+	return m_and_v;
 }
 
 
-void DistFit::add_point(double new_point){
-	points.push_back(new_point);
-	log_points.push_back(log(new_point));
+void  DistFit::add_vector(vector<double> edge_vector){
+	cout << "TEST5";
+	//log_new_edges = for_each(edge_vector.begin(), edge_vector.end(), &myfunction);
+	for(int i; i < edge_vector.size(); i++){
+		log_edges[i].push_back(log(edge_vector[i]));
+		edges[i].push_back(edge_vector[i]);
+		mean_and_vars.push_back(calc_mean_var(edges[i]));
+		log_mean_and_vars.push_back(calc_mean_var(log_edges[i]));
+		mu = log_mean_and_vars[i][0];
+		sigma = log_mean_and_vars[i][1];
+		mean= exp(mu + pow(sigma,2)/2);
+		variance = exp(2*mu + pow(sigma,2))*(exp(pow(sigma,2)-1));
+		vector< double> tmp;
+		log_mean_and_vars[i][0] = mean;
+		log_mean_and_vars[i][1] = variance;
+	}
+}
 
-	double sum = accumulate(log_points.begin(), log_points.end(), 0.0);
-	double mu = sum / log_points.size();
-	double sumSquares = inner_product(log_points.begin(), log_points.end(), log_points.begin(), 0.0);
-	double sigma = sumSquares/log_points.size() - mu*mu;
-
+void DistFit::add_edge(double new_edge, int loc){
+	edges[loc].push_back(new_edge);
+	log_edges[loc].push_back(log(new_edge));
+	mean_and_vars.push_back(calc_mean_var(edges[loc]));
+	log_mean_and_vars.push_back(calc_mean_var(log_edges[loc]));
+	mu = log_mean_and_vars[loc][0];
+	sigma = log_mean_and_vars[loc][1];
 	mean= exp(mu + pow(sigma,2)/2);
 	variance = exp(2*mu + pow(sigma,2))*(exp(pow(sigma,2)-1));
-
-	cout << "Mean: " << mean << endl;
-	cout << "Variance: " << variance << endl;
+	vector< double> tmp;
+	tmp.push_back(mean);
+	tmp.push_back(variance);
+	log_mean_and_vars[loc] = tmp;
 }
-
-
-/*
-void gd_slope(float &slope_mu, float &slope_sigma) {
-	int nmax = residual.size();
-	float tmp_sigma = 0.f, tmp_mu = 0.f;
-	for(int i = 0; i < nmax; ++i) {
-		tmp_sigma += 2.f*residual[i]*exp(-pow(x_mu_sigma[i],2))/sqrt(M_PI)*(-x_mu_sigma[i]/sigma);
-		tmp_mu += 2.f*residual[i]*exp(-pow(x_mu_sigma[i],2))/sqrt(M_PI)*(-1.f/sqrt(2.f*pow(sigma,2)));
-	}
-	slope_sigma = tmp_sigma;
-	slope_mu = tmp_mu;
-	return;
-}
-
-*/

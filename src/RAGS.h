@@ -618,7 +618,7 @@ bool ComputeImprovementProbability(Vertex * A, Vertex * B)
 
   // If code is taking too long, change n to a smaller value
   // Note that since this is the numerical integration discretisation
-  // smaller n with provide coarser approximation to solution
+  // smaller n will provide coarser approximation to solution
   int n = 10000 ;
   vector<double> x = linspace(min_3sig,max_3sig,n) ;
   double dx = x[1]-x[0] ;
