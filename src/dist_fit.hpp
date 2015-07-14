@@ -30,23 +30,23 @@ DistFit::DistFit(){
 vector< double > DistFit::calc_mean_var(vector< double > points){
 
 	double sum  = 0, mu = 0, sigma_sq = 0, sdev = 0, dev = 0;
-	//double sum = accumulate(points.begin(), points.end(), 0.0);
-	//double mu = sum / points.size();
-	//double sumSquares = inner_product(points.begin(), points.end(), points.begin(), 0.0);
-	//double sigma = sumSquares/points.size() - mu*mu;
+	sum = accumulate(points.begin(), points.end(), 0.0);
+	mu = sum / points.size();
+	sdev = inner_product(points.begin(), points.end(), points.begin(), 0.0);
+	sigma_sq = sdev/points.size() - mu*mu;
 
 	//cout << "Mean: " << mean << endl;
 	//cout << "Variance: " << variance << endl;
 
-	for(int i = 0; i < points.size(); i++){
-		sum += points[i];
-	}
-	mu = sum/points.size();
-        for(int i = 1; i <= points.size(); ++i){
-		dev = (points[i] - mu)*(points[i] - mu);
-		sdev = sdev + dev;
-	}
-	sigma_sq = sdev / (points.size());
+//	for(int i = 0; i < points.size(); i++){
+//		sum += points[i];
+//	}
+//	mu = sum/points.size();
+//        for(int i = 1; i <= points.size(); ++i){
+//		dev = (points[i] - mu)*(points[i] - mu);
+//		sdev = sdev + dev;
+//	}
+//	sigma_sq = sdev / (points.size());
 
 	vector< double > m_and_v;
 	m_and_v.push_back(mu);
@@ -73,7 +73,7 @@ void DistFit::add_vector(vector<double> edge_vector){
 			mu1 = log_mean_and_vars[i][0];
 			sigma1 = log_mean_and_vars[i][1];
 			mean1 = exp(mu1 + pow(sigma1,2)/2);
-			variance1 = exp(2*mu1 + pow(sigma1,2))*(exp(pow(sigma1,2)-1));
+			variance1 = exp(2*mu1 + pow(sigma1,2))*(exp(pow(sigma1,2))-1);
 			log_mean_and_vars[i][0] = mean1;
 			log_mean_and_vars[i][1] = variance1;
 		}
@@ -88,7 +88,7 @@ void DistFit::add_vector(vector<double> edge_vector){
 			mu1 = log_mean_and_vars[i][0];
 			sigma1 = log_mean_and_vars[i][1];
 			mean1 = exp(mu1 + pow(sigma1,2)/2);
-			variance1 = exp(2*mu1 + pow(sigma1,2))*(exp(pow(sigma1,2)-1));
+			variance1 = exp(2*mu1 + pow(sigma1,2))*(exp(pow(sigma1,2))-1);
 			log_mean_and_vars[i][0] = mean1;
 			log_mean_and_vars[i][1] = variance1;
 		}
@@ -108,7 +108,7 @@ void DistFit::add_edge(double new_edge, int loc){
 		mu1 = log_mean_and_vars[loc][0];
 		sigma1 = log_mean_and_vars[loc][1];
 		mean1 = exp(mu1 + pow(sigma1,2)/2);
-		variance1 = exp(2*mu1 + pow(sigma1,2))*(exp(pow(sigma1,2)-1));
+		variance1 = exp(2*mu1 + pow(sigma1,2))*(exp(pow(sigma1,2))-1);
 		log_mean_and_vars[loc][0] = mean1;
 		log_mean_and_vars[loc][1] = variance1;
 	}
@@ -120,7 +120,7 @@ void DistFit::add_edge(double new_edge, int loc){
 		mu1 = log_mean_and_vars[loc][0];
 		sigma1 = log_mean_and_vars[loc][1];
 		mean1 = exp(mu1 + pow(sigma1,2)/2);
-		variance1 = exp(2*mu1 + pow(sigma1,2))*(exp(pow(sigma1,2)-1));
+		variance1 = exp(2*mu1 + pow(sigma1,2))*(exp(pow(sigma1,2))-1);
 		log_mean_and_vars[loc][0] = mean1;
 		log_mean_and_vars[loc][1] = variance1;
 	}

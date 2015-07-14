@@ -12,11 +12,13 @@ int main()
   //std::default_random_engine generator;
   std::random_device rd;
   std::mt19937 gen(rd());
-  double m, u;
+  double m, v, mu_log, sigma_log;
   m = 1.0;
-  u =2.0;
-  std::lognormal_distribution<double> distribution(u,m);
-  std::cout << "lognormal_distribution (" << m << "," << u << "):" << std::endl;
+  v =2.0;
+  mu_log = log((pow(m,2))/sqrt(v+pow(m,2)));
+  sigma_log = sqrt(log(v/(pow(m,2))+1));
+  std::lognormal_distribution<double> distribution(mu_log,sigma_log);
+  std::cout << "lognormal_distribution (" << m << "," << v << "):" << std::endl;
   int num_steps = 10000;
   vector< double > edges;
   vector < vector < double > > logMV, MV;
